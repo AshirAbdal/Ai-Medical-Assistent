@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingsActivity">
+
+    <!-- Text Size Input -->
+    <EditText
+        android:id="@+id/textSizeInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter text size (e.g., 18)"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="16dp" />
+
+    <!-- Language Input -->
+    <EditText
+        android:id="@+id/languageInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter language code (e.g., en)"
+        android:inputType="text"
+        app:layout_constraintTop_toBottomOf="@id/textSizeInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="16dp" />
+
+    <!-- Theme Selection -->
+    <Spinner
+        android:id="@+id/themeSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Select theme"
+        app:layout_constraintTop_toBottomOf="@id/languageInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="16dp" />
+
+    <!-- Font Style Selection -->
+    <Spinner
+        android:id="@+id/fontStyleSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Select font style"
+        app:layout_constraintTop_toBottomOf="@id/themeSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="16dp" />
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        app:layout_constraintTop_toBottomOf="@id/fontStyleSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Back Button -->
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        app:layout_constraintTop_toBottomOf="@id/saveButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

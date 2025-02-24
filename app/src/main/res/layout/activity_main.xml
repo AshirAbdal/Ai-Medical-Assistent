@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- EditText for voice input -->
+    <EditText
+        android:id="@+id/voiceInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Speak something..."
+        android:inputType="textMultiLine"
+        android:gravity="top|start"
+        android:imeOptions="actionDone"
+        android:textSize="18sp"
+        android:maxLines="5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="16dp" />
+
+    <!-- Mic button for voice recognition -->
+    <Button
+        android:id="@+id/micButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎤"
+        app:layout_constraintTop_toBottomOf="@id/voiceInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Clear button to clear the text -->
+    <Button
+        android:id="@+id/clearButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear"
+        app:layout_constraintTop_toBottomOf="@id/micButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Settings button to navigate to SettingsActivity -->
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        app:layout_constraintTop_toBottomOf="@id/clearButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
