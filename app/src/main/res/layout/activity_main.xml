@@ -8,6 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <!-- EditText for voice input -->
     <EditText
         android:id="@+id/voiceInput"
