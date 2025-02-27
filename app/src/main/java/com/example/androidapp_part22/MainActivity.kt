@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.speech.RecognizerIntent
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private val idleTimeout = 10000L
     private val voiceFileName = "voice.txt"
+    private var lastSavedText = ""
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -66,7 +69,16 @@ class MainActivity : AppCompatActivity() {
         clearButton.setOnClickListener { clearText() }
         settingsButton.setOnClickListener { openSettings() }
         showEntriesButton.setOnClickListener { showSavedEntries() }
-        voiceInput.setOnKeyListener { _, _, _ -> resetIdleTimer(); false }
+
+        voiceInput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                resetIdleTimer()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
     }
 
     private fun checkAudioPermission() {
@@ -79,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
                 android.Manifest.permission.RECORD_AUDIO
-            ) -> Toast.makeText(this, "Microphone access needed for voice input", Toast.LENGTH_LONG).show()
+            ) -> Toast.makeText(this, "Microphone access needed", Toast.LENGTH_LONG).show()
 
             else -> requestPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
         }
@@ -110,14 +122,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveVoiceEntry(text: String) {
+        if (text == lastSavedText) return
+
         try {
             val prefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
             val count = prefs.getInt("voice_entry_count", 0) + 1
 
             File(filesDir, voiceFileName).appendText("voice $count text: $text\n")
 
-            prefs.edit().putInt("voice_entry_count", count).apply()
-            Toast.makeText(this, "Auto-saved: Entry $count", Toast.LENGTH_SHORT).show()
+            prefs.edit().apply {
+                putInt("voice_entry_count", count)
+                apply()
+            }
+            lastSavedText = text
+            Toast.makeText(this, "Saved: Entry $count", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
             Toast.makeText(this, "Save failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
@@ -139,6 +157,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun clearText() {
         voiceInput.text.clear()
+        lastSavedText = ""
         Toast.makeText(this, "Text cleared", Toast.LENGTH_SHORT).show()
     }
 
@@ -173,8 +192,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveCurrentText() {
-        voiceInput.text.takeIf { it.isNotEmpty() }?.toString()?.let {
-            saveVoiceEntry(it)
+        val currentText = voiceInput.text.toString().trim()
+        if (currentText.isNotEmpty() && currentText != lastSavedText) {
+            saveVoiceEntry(currentText)
         }
     }
 
