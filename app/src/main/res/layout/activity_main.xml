@@ -19,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Icon Button -->
+    <!-- Mic Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/micButton"
         style="@style/Widget.Material3.Button.Icon"
@@ -31,7 +31,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/voiceInput"/>
 
-    <!-- Text Button -->
+    <!-- Clear Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/clearButton"
         style="@style/Widget.Material3.Button.TextButton"
@@ -43,7 +43,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/micButton"/>
 
-    <!-- Outlined Button -->
+    <!-- Settings Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/settingsButton"
         style="@style/Widget.Material3.Button.OutlinedButton"
@@ -51,9 +51,21 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Settings"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/clearButton"/>
+
+    <!-- Show Entries Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/showEntriesButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Show Entries"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settingsButton"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
