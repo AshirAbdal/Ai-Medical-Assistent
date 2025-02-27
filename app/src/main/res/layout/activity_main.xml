@@ -3,59 +3,57 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
-    <!-- EditText for voice input -->
     <EditText
         android:id="@+id/voiceInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:hint="Speak something..."
         android:inputType="textMultiLine"
-        android:gravity="top|start"
-        android:imeOptions="actionDone"
-        android:textSize="18sp"
         android:maxLines="5"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Mic button for voice recognition -->
-    <Button
+    <!-- Icon Button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/micButton"
+        style="@style/Widget.Material3.Button.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🎤"
-        app:layout_constraintTop_toBottomOf="@id/voiceInput"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        app:icon="@drawable/ic_mic"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/voiceInput"/>
 
-    <!-- Clear button to clear the text -->
-    <Button
+    <!-- Text Button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/clearButton"
+        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Clear"
-        app:layout_constraintTop_toBottomOf="@id/micButton"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/micButton"/>
 
-    <!-- Settings button to navigate to SettingsActivity -->
-    <Button
+    <!-- Outlined Button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/settingsButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Settings"
-        app:layout_constraintTop_toBottomOf="@id/clearButton"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clearButton"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

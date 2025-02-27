@@ -1,5 +1,6 @@
 package com.example.androidapp_part22
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -19,7 +20,6 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var saveButton: Button
     private lateinit var backButton: Button
 
-    // Language data (display name, language code)
     private val languages = listOf(
         "English" to "en",
         "Spanish" to "es",
@@ -32,7 +32,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        // Initialize UI elements
+        // Initialize views using proper resource IDs
         textSizeInput = findViewById(R.id.textSizeInput)
         languageSpinner = findViewById(R.id.languageSpinner)
         themeSpinner = findViewById(R.id.themeSpinner)
@@ -40,90 +40,94 @@ class SettingsActivity : AppCompatActivity() {
         saveButton = findViewById(R.id.saveButton)
         backButton = findViewById(R.id.backButton)
 
-        // Setup spinners
-        setupLanguageSpinner()
-        setupThemeSpinner()
-        setupFontStyleSpinner()
-
-        // Load saved preferences
+        setupSpinners()
         loadPreferences()
-
-        // Set up button click listeners
-        saveButton.setOnClickListener { savePreferences() }
-        backButton.setOnClickListener { finish() }
+        setupButtonListeners()
     }
 
-    private fun setupLanguageSpinner() {
-        // Create adapter with display names
-        val adapter = ArrayAdapter(
+    private fun setupSpinners() {
+        // Language spinner
+        languageSpinner.adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
-            languages.map { it.first } // Show display names
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        languageSpinner.adapter = adapter
-    }
+            languages.map { it.first }
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
 
-    private fun setupThemeSpinner() {
-        val themes = arrayOf("Light", "Dark")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, themes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        themeSpinner.adapter = adapter
-    }
+        // Theme spinner
+        themeSpinner.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            listOf("Light", "Dark")
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
 
-    private fun setupFontStyleSpinner() {
-        val fontStyles = arrayOf("Normal", "Bold", "Italic")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, fontStyles)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        fontStyleSpinner.adapter = adapter
-    }
-
-    private fun loadPreferences() {
-        val sharedPreferences = getSharedPreferences("AppSettings", MODE_PRIVATE)
-
-        // Load text size
-        val textSize = sharedPreferences.getFloat("textSize", 18f)
-        textSizeInput.setText(textSize.toString())
-
-        // Load language
-        val savedLanguage = sharedPreferences.getString("language", Locale.getDefault().language)
-        val languageIndex = languages.indexOfFirst { it.second == savedLanguage }
-        if (languageIndex != -1) languageSpinner.setSelection(languageIndex)
-
-        // Load theme
-        val theme = sharedPreferences.getString("theme", "Light")
-        themeSpinner.setSelection((themeSpinner.adapter as ArrayAdapter<String>).getPosition(theme))
-
-        // Load font style
-        val fontStyle = sharedPreferences.getString("fontStyle", "Normal")
-        fontStyleSpinner.setSelection((fontStyleSpinner.adapter as ArrayAdapter<String>).getPosition(fontStyle))
-    }
-
-    private fun savePreferences() {
-        val textSize = textSizeInput.text.toString().toFloatOrNull()
-        val languageCode = getSelectedLanguageCode()
-
-        if (textSize != null && languageCode != null) {
-            val sharedPreferences = getSharedPreferences("AppSettings", MODE_PRIVATE)
-            sharedPreferences.edit().apply {
-                putFloat("textSize", textSize)
-                putString("language", languageCode)
-                putString("theme", themeSpinner.selectedItem.toString())
-                putString("fontStyle", fontStyleSpinner.selectedItem.toString())
-                apply()
-            }
-            Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show()
+        // Font style spinner
+        fontStyleSpinner.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            listOf("Normal", "Bold", "Italic")
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
     }
 
-    private fun getSelectedLanguageCode(): String? {
-        val selectedPosition = languageSpinner.selectedItemPosition
-        return if (selectedPosition in languages.indices) {
-            languages[selectedPosition].second
-        } else {
-            null
+    private fun loadPreferences() {
+        val prefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
+
+        // Text size
+        textSizeInput.setText(prefs.getFloat("textSize", 18f).toString())
+
+        // Language
+        prefs.getString("language", Locale.getDefault().language)?.let { lang ->
+            val index = languages.indexOfFirst { it.second == lang }
+            if (index != -1) languageSpinner.setSelection(index)
+        }
+
+        // Theme
+        themeSpinner.setSelection(
+            (themeSpinner.adapter as ArrayAdapter<String>).getPosition(
+                prefs.getString("theme", "Light")
+            )
+        )
+
+        // Font style
+        fontStyleSpinner.setSelection(
+            (fontStyleSpinner.adapter as ArrayAdapter<String>).getPosition(
+                prefs.getString("fontStyle", "Normal")
+            )
+        )
+    }
+
+    private fun setupButtonListeners() {
+        saveButton.setOnClickListener {
+            if (validateInputs()) {
+                savePreferences()
+                setResult(RESULT_OK)
+                Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        backButton.setOnClickListener {
+            finish()
+        }
+    }
+
+    private fun validateInputs() =
+        textSizeInput.text.toString().toFloatOrNull() != null &&
+                languageSpinner.selectedItemPosition in languages.indices
+
+    private fun savePreferences() {
+        getSharedPreferences("AppSettings", MODE_PRIVATE).edit().apply {
+            putFloat("textSize", textSizeInput.text.toString().toFloat())
+            putString("language", languages[languageSpinner.selectedItemPosition].second)
+            putString("theme", themeSpinner.selectedItem.toString())
+            putString("fontStyle", fontStyleSpinner.selectedItem.toString())
+            apply()
         }
     }
 }
