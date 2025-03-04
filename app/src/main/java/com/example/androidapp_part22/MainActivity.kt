@@ -35,6 +35,12 @@ class MainActivity : AppCompatActivity() {
     private val voiceFileName = "voice.txt"
     private var lastSavedText = ""
 
+    // Request code for speech recognition and settings activity
+    companion object {
+        private const val REQUEST_CODE_SPEECH_INPUT = 100
+        private const val SETTINGS_REQUEST_CODE = 101
+    }
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -112,11 +118,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_SPEECH_INPUT && resultCode == RESULT_OK) {
-            data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let {
-                voiceInput.setText(it)
-                saveVoiceEntry(it)
-                resetIdleTimer()
+        when {
+            requestCode == REQUEST_CODE_SPEECH_INPUT && resultCode == RESULT_OK -> {
+                data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let {
+                    voiceInput.setText(it)
+                    saveVoiceEntry(it)
+                    resetIdleTimer()
+                }
+            }
+            requestCode == SETTINGS_REQUEST_CODE && resultCode == RESULT_OK -> {
+                // Recreate the activity to apply new theme and font settings immediately.
+                recreate()
             }
         }
     }
@@ -162,7 +174,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openSettings() {
-        startActivity(Intent(this, SettingsActivity::class.java))
+        // Start SettingsActivity expecting a result
+        startActivityForResult(Intent(this, SettingsActivity::class.java), SETTINGS_REQUEST_CODE)
     }
 
     private fun applyTheme() {
@@ -201,9 +214,5 @@ class MainActivity : AppCompatActivity() {
     private fun getPreferredLanguage(): String {
         val prefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
         return prefs.getString("language", Locale.getDefault().language) ?: "en"
-    }
-
-    companion object {
-        private const val REQUEST_CODE_SPEECH_INPUT = 100
     }
 }
