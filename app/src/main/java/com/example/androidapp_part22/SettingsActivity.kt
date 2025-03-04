@@ -1,7 +1,6 @@
 package com.example.androidapp_part22
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -32,7 +31,6 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        // Initialize views using proper resource IDs
         textSizeInput = findViewById(R.id.textSizeInput)
         languageSpinner = findViewById(R.id.languageSpinner)
         themeSpinner = findViewById(R.id.themeSpinner)
@@ -105,21 +103,21 @@ class SettingsActivity : AppCompatActivity() {
         saveButton.setOnClickListener {
             if (validateInputs()) {
                 savePreferences()
-                setResult(RESULT_OK)
+                setResult(RESULT_OK, Intent())
                 Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show()
             }
         }
-
         backButton.setOnClickListener {
             finish()
         }
     }
 
-    private fun validateInputs() =
-        textSizeInput.text.toString().toFloatOrNull() != null &&
+    private fun validateInputs(): Boolean {
+        return textSizeInput.text.toString().toFloatOrNull() != null &&
                 languageSpinner.selectedItemPosition in languages.indices
+    }
 
     private fun savePreferences() {
         getSharedPreferences("AppSettings", MODE_PRIVATE).edit().apply {

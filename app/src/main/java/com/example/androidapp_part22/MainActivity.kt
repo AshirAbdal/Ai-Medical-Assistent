@@ -18,6 +18,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.util.Locale
@@ -35,7 +43,6 @@ class MainActivity : AppCompatActivity() {
     private val voiceFileName = "voice.txt"
     private var lastSavedText = ""
 
-    // Request code for speech recognition and settings activity
     companion object {
         private const val REQUEST_CODE_SPEECH_INPUT = 100
         private const val SETTINGS_REQUEST_CODE = 101
@@ -80,9 +87,7 @@ class MainActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 resetIdleTimer()
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
     }
@@ -93,12 +98,10 @@ class MainActivity : AppCompatActivity() {
                 this,
                 android.Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED -> startVoiceRecognition()
-
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
                 android.Manifest.permission.RECORD_AUDIO
             ) -> Toast.makeText(this, "Microphone access needed", Toast.LENGTH_LONG).show()
-
             else -> requestPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
         }
     }
@@ -123,6 +126,7 @@ class MainActivity : AppCompatActivity() {
                 data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let {
                     voiceInput.setText(it)
                     saveVoiceEntry(it)
+                    sendTextToApi(it)  // Send text to your API endpoint.
                     resetIdleTimer()
                 }
             }
@@ -174,7 +178,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openSettings() {
-        // Start SettingsActivity expecting a result
         startActivityForResult(Intent(this, SettingsActivity::class.java), SETTINGS_REQUEST_CODE)
     }
 
@@ -214,5 +217,49 @@ class MainActivity : AppCompatActivity() {
     private fun getPreferredLanguage(): String {
         val prefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
         return prefs.getString("language", Locale.getDefault().language) ?: "en"
+    }
+
+    // Function to send text to an API endpoint using OkHttp and parse the JSON response.
+    private fun sendTextToApi(text: String) {
+        val client = OkHttpClient()
+
+        val requestBody: RequestBody = FormBody.Builder()
+            .add("text", text)
+            .build()
+
+        val request = Request.Builder()
+            .url("https://voicetotext.free.beeceptor.com") // Replace with your API endpoint.
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Failed to send text: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onResponse(call: Call, response: Response) {
+                // Safely extract the response body.
+                val responseBody = response.body?.string()
+                if (responseBody.isNullOrEmpty()) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Empty response received", Toast.LENGTH_SHORT).show()
+                    }
+                    return
+                }
+                try {
+                    // Parse the response assuming it is in JSON format.
+                    val jsonObject = JSONObject(responseBody)
+                    val message = jsonObject.getString("message")
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Response: $message", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Error parsing JSON: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
     }
 }

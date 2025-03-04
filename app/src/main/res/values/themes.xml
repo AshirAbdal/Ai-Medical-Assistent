@@ -13,7 +13,7 @@
         <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
         <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
 
-        <!-- Status bar -->
+        <!-- Status bar -->a
         <item name="android:statusBarColor">?attr/colorPrimaryContainer</item>
         <item name="android:windowLightStatusBar">@bool/isLightTheme</item>
     </style>
