@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">AndroidApp-part2.2</string>
+    <string name="app_name"></string>
+    <!-- Add other strings you need below -->
 </resources>

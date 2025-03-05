@@ -44,7 +44,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
-        // Language spinner
         languageSpinner.adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -53,7 +52,6 @@ class SettingsActivity : AppCompatActivity() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        // Theme spinner
         themeSpinner.adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -62,7 +60,6 @@ class SettingsActivity : AppCompatActivity() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        // Font style spinner
         fontStyleSpinner.adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -74,24 +71,19 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun loadPreferences() {
         val prefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
-
-        // Text size
         textSizeInput.setText(prefs.getFloat("textSize", 18f).toString())
 
-        // Language
         prefs.getString("language", Locale.getDefault().language)?.let { lang ->
             val index = languages.indexOfFirst { it.second == lang }
             if (index != -1) languageSpinner.setSelection(index)
         }
 
-        // Theme
         themeSpinner.setSelection(
             (themeSpinner.adapter as ArrayAdapter<String>).getPosition(
                 prefs.getString("theme", "Light")
             )
         )
 
-        // Font style
         fontStyleSpinner.setSelection(
             (fontStyleSpinner.adapter as ArrayAdapter<String>).getPosition(
                 prefs.getString("fontStyle", "Normal")

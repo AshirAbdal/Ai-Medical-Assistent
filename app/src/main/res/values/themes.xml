@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme -->
-    <style name="Theme.AndroidApppart22" parent="Theme.Material3.DayNight">
+    <style name="Theme.AndroidApppart22" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary colors -->
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
@@ -13,13 +13,13 @@
         <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
         <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
 
-        <!-- Status bar -->a
+        <!-- Status bar -->
         <item name="android:statusBarColor">?attr/colorPrimaryContainer</item>
         <item name="android:windowLightStatusBar">@bool/isLightTheme</item>
     </style>
 
     <!-- Night theme variation -->
-    <style name="Theme.AndroidApppart22.Night" parent="Theme.Material3.DayNight">
+    <style name="Theme.AndroidApppart22.Night" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary colors -->
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
