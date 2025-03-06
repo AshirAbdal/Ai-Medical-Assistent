@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         private const val REQUEST_CODE_SPEECH_INPUT = 100
         private const val SETTINGS_REQUEST_CODE = 101
         private const val API_ENDPOINT = "https://voicetotext.free.beeceptor.com"
-        private const val API_HISTORY_PATH = "/history"
+        private const val API_HISTORY_PATH = "/"
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
