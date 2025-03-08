@@ -8,7 +8,11 @@
     <color name="md_theme_light_onSurface">#1C1B1F</color>
     <color name="md_theme_light_surfaceVariant">#E7E0EC</color>
     <color name="md_theme_light_onSurfaceVariant">#49454F</color>
-
+    <color name="your_border_color">#808080</color> <!-- Example gray color -->
+    <!-- res/values/colors.xml -->
+    <color name="brand_green">#4CAF50</color>
+    <color name="brand_green_20">#334CAF50</color>
+    <color name="white">#FFFFFF</color>
     <!-- Dark theme colors -->
     <color name="md_theme_dark_primary">#D0BCFF</color>
     <color name="md_theme_dark_onPrimary">#381E72</color>

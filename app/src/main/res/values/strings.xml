@@ -1,4 +1,6 @@
 <resources>
-    <string name="app_name"></string>
-    <!-- Add other strings you need below -->
+    <string name="fa_microphone">&#xf130;</string>  <!-- Mic Icon -->
+    <string name="fa_times">&#xf00d;</string>  <!-- Clear Button (Cross Icon) -->
+    <string name="fa_history">&#xf1da;</string>  <!-- History Icon -->
+    <string name="fa_cog">&#xf013;</string>  <!-- Settings (Gear) Icon -->
 </resources>

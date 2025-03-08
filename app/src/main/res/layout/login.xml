@@ -5,18 +5,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f0f0f0">
+    android:background="#f0f0f0"
+    tools:context=".LoginActivity">
 
-    <!-- Logo -->
+    <!-- Logo with fixed dimensions -->
     <ImageView
         android:id="@+id/logoImageView"
-        android:layout_width="98dp"
-        android:layout_height="57dp"
+        android:layout_width="99dp"
+        android:layout_height="67dp"
         android:layout_marginTop="32dp"
         android:src="@drawable/ethizo_logo"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Version Text -->
     <TextView
@@ -47,6 +48,7 @@
             android:orientation="vertical"
             android:padding="24dp">
 
+            <!-- Login Title -->
             <TextView
                 android:id="@+id/loginTitle"
                 android:layout_width="wrap_content"
@@ -55,6 +57,18 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Error Message TextView -->
+            <TextView
+                android:id="@+id/errorMessageTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Please provide both Username and Password"
+                android:textColor="#FF0000"
+                android:background="#FFE0E0"
+                android:padding="8dp"
+                android:visibility="gone"
                 android:layout_marginBottom="16dp" />
 
             <!-- Username Input -->

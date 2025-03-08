@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- Trust preinstalled CAs -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+
+    <!-- Allow cleartext for specific domain -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">voicetotext.free.beeceptor.com</domain>
     </domain-config>

@@ -7,73 +7,156 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/voiceInput"
-        android:layout_width="0dp"
-        android:layout_height="155dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="10dp"
-        android:hint="Speak something..."
-        android:inputType="textMultiLine"
-        android:maxLines="5"
-        app:layout_constraintEnd_toEndOf="parent"
+    <!-- Top Bar with Logo and Search -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="8dp"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/micButton"
-        style="@style/Widget.Material3.Button.Icon"
-        android:layout_width="54dp"
-        android:layout_height="52dp"
+        <!-- Logo (Left) -->
+        <ImageView
+            android:id="@+id/logoImageView"
+            android:layout_width="83dp"
+            android:layout_height="51dp"
+            android:contentDescription="Ethizo Logo"
+            android:src="@drawable/ethizo_logo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Search (Right) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/logoImageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="#4CAF50"
+            app:hintTextColor="#4CAF50">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search..."
+                android:textColorHint="#4CAF50"
+                android:textColor="#4CAF50"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Menu Bar -->
+    <LinearLayout
+        android:id="@+id/menuBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
         android:layout_marginTop="12dp"
-        app:icon="@drawable/ic_mic"
-        app:layout_constraintEnd_toEndOf="@id/voiceInput"
-        app:layout_constraintStart_toStartOf="@id/voiceInput"
-        app:layout_constraintTop_toBottomOf="@id/voiceInput" />
-
-    <!-- Button Row -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/clearButton"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:text="Clear"
-        app:cornerRadius="24dp"
-        app:layout_constraintEnd_toStartOf="@id/historyButton"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        android:layout_marginBottom="8dp"
+        android:background="#334CAF50"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/micButton"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.28" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/historyButton"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:text="History"
-        app:cornerRadius="24dp"
-        app:layout_constraintEnd_toStartOf="@id/settingsButton"
-        app:layout_constraintStart_toEndOf="@id/clearButton"
-        app:layout_constraintTop_toTopOf="@id/clearButton"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.28" />
+        <ImageButton
+            android:id="@+id/micButton"
+            android:layout_width="54dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_mic"
+            android:contentDescription="Microphone"
+            app:tint="#4CAF50" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/settingsButton"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
-        android:text="Settings"
-        app:cornerRadius="24dp"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/clearButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Clear"
+            android:textColor="#4CAF50"
+            app:iconTint="#4CAF50"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/settingsButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Settings"
+            android:textColor="#4CAF50"
+            app:iconTint="#4CAF50"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/historyButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="History"
+            android:textColor="#4CAF50"
+            app:iconTint="#4CAF50"/>
+
+
+    </LinearLayout>
+
+    <!-- Text Input Area -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/menuBar"
+        app:layout_constraintBottom_toTopOf="@id/sendButtonContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <EditText
+            android:id="@+id/voiceInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="speak"
+            android:inputType="textMultiLine"
+            android:maxLines="1000"
+            android:minLines="1"
+            android:scrollbars="vertical"
+            android:background="@drawable/edittext_border"
+            android:padding="175dp"
+            android:textSize="16sp"
+            android:textColor="#4CAF50"
+            android:ellipsize="end"/>
+    </ScrollView>
+
+    <!-- Send Button -->
+    <LinearLayout
+        android:id="@+id/sendButtonContainer"
+        android:layout_width="99dp"
+        android:layout_height="106dp"
+        android:layout_marginBottom="4dp"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/historyButton"
-        app:layout_constraintTop_toTopOf="@id/clearButton"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.28" />
+        app:layout_constraintHorizontal_bias="0.949"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/sendButton"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Send"
+            android:src="@drawable/ic_send"
+            app:tint="#4CAF50" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

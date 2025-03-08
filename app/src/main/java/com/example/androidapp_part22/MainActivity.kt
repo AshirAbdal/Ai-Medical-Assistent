@@ -1,10 +1,14 @@
 package com.example.androidapp_part22
 
+
+import android.widget.ImageButton
+import com.google.android.material.button.MaterialButton
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -29,10 +33,12 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var voiceInput: EditText
-    private lateinit var micButton: Button
-    private lateinit var clearButton: Button
-    private lateinit var settingsButton: Button
-    private lateinit var historyButton: Button
+
+
+    private lateinit var micButton: ImageButton  // Was Button
+    private lateinit var clearButton: MaterialButton  // Was Button
+    private lateinit var settingsButton: MaterialButton  // Was Button
+    private lateinit var historyButton: MaterialButton  // Was Button
 
     companion object {
         private const val REQUEST_CODE_SPEECH_INPUT = 100
@@ -52,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        applyTheme()
+        applyTheme()  // Moved BEFORE super.onCreate
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -61,12 +67,18 @@ class MainActivity : AppCompatActivity() {
         applyPreferences()
     }
 
+
     private fun initializeViews() {
-        voiceInput = findViewById(R.id.voiceInput)
-        micButton = findViewById(R.id.micButton)
-        clearButton = findViewById(R.id.clearButton)
-        settingsButton = findViewById(R.id.settingsButton)
-        historyButton = findViewById(R.id.historyButton)
+        try {
+            voiceInput = findViewById(R.id.voiceInput)
+            micButton = findViewById(R.id.micButton)
+            clearButton = findViewById(R.id.clearButton)
+            settingsButton = findViewById(R.id.settingsButton)
+            historyButton = findViewById(R.id.historyButton)
+        } catch (e: Exception) {
+            Toast.makeText(this, "View Error: ${e.message}", Toast.LENGTH_LONG).show()
+            Log.e("MainActivity", "View initialization failed", e)
+        }
     }
 
     private fun setupListeners() {
