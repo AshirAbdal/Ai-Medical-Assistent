@@ -108,7 +108,6 @@
             android:textColor="#4CAF50"
             app:iconTint="#4CAF50"/>
 
-
     </LinearLayout>
 
     <!-- Text Input Area -->
@@ -125,38 +124,39 @@
             android:id="@+id/voiceInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="speak"
+            android:hint="Speak now..."
             android:inputType="textMultiLine"
             android:maxLines="1000"
             android:minLines="1"
             android:scrollbars="vertical"
             android:background="@drawable/edittext_border"
-            android:padding="175dp"
+            android:padding="16dp"
             android:textSize="16sp"
             android:textColor="#4CAF50"
             android:ellipsize="end"/>
     </ScrollView>
 
-    <!-- Send Button -->
+    <!-- Enhanced Send Button -->
     <LinearLayout
         android:id="@+id/sendButtonContainer"
-        android:layout_width="99dp"
-        android:layout_height="106dp"
-        android:layout_marginBottom="4dp"
-        android:padding="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.949"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
             android:id="@+id/sendButton"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Send"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_send"
-            app:tint="#4CAF50" />
+            app:tint="#4CAF50"
+            android:elevation="4dp"
+            android:stateListAnimator="@null"
+            android:padding="16dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

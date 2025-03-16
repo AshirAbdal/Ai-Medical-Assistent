@@ -32,13 +32,19 @@ import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
+
+
+
     private lateinit var voiceInput: EditText
+    private lateinit var micButton: ImageButton
+    private lateinit var clearButton: MaterialButton
+    private lateinit var settingsButton: MaterialButton
+    private lateinit var historyButton: MaterialButton
+    private lateinit var sendButton: ImageButton
 
-
-    private lateinit var micButton: ImageButton  // Was Button
-    private lateinit var clearButton: MaterialButton  // Was Button
-    private lateinit var settingsButton: MaterialButton  // Was Button
-    private lateinit var historyButton: MaterialButton  // Was Button
+    // Track text selection positions
+    private var selectionStart: Int = 0
+    private var selectionEnd: Int = 0
 
     companion object {
         private const val REQUEST_CODE_SPEECH_INPUT = 100
@@ -56,9 +62,8 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT).show()
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        applyTheme()  // Moved BEFORE super.onCreate
+        applyTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -67,7 +72,6 @@ class MainActivity : AppCompatActivity() {
         applyPreferences()
     }
 
-
     private fun initializeViews() {
         try {
             voiceInput = findViewById(R.id.voiceInput)
@@ -75,6 +79,7 @@ class MainActivity : AppCompatActivity() {
             clearButton = findViewById(R.id.clearButton)
             settingsButton = findViewById(R.id.settingsButton)
             historyButton = findViewById(R.id.historyButton)
+            sendButton = findViewById(R.id.sendButton)
         } catch (e: Exception) {
             Toast.makeText(this, "View Error: ${e.message}", Toast.LENGTH_LONG).show()
             Log.e("MainActivity", "View initialization failed", e)
@@ -86,6 +91,18 @@ class MainActivity : AppCompatActivity() {
         clearButton.setOnClickListener { clearText() }
         settingsButton.setOnClickListener { openSettings() }
         historyButton.setOnClickListener { fetchHistoryFromApi() }
+        sendButton.setOnClickListener { onSendButtonClicked() }
+    }
+
+
+    private fun onSendButtonClicked() {
+        val text = voiceInput.text.toString().trim()
+        if (text.isNotEmpty()) {
+            sendTextToApi(text)
+            Toast.makeText(this, "Sending text...", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Please enter some text first", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun checkAudioPermission() {
@@ -94,15 +111,22 @@ class MainActivity : AppCompatActivity() {
                 this,
                 android.Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED -> startVoiceRecognition()
+
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
                 android.Manifest.permission.RECORD_AUDIO
             ) -> Toast.makeText(this, "Microphone access needed", Toast.LENGTH_LONG).show()
+
             else -> requestPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
         }
     }
 
+
     private fun startVoiceRecognition() {
+        // Capture current text selection before starting voice input
+        selectionStart = voiceInput.selectionStart
+        selectionEnd = voiceInput.selectionEnd
+
         Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, getPreferredLanguage())
@@ -115,13 +139,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when {
             requestCode == REQUEST_CODE_SPEECH_INPUT && resultCode == RESULT_OK -> {
-                data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let {
-                    voiceInput.setText(it)
-                    sendTextToApi(it)
+                data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let { newText ->
+                    val currentText = voiceInput.text.toString()
+
+                    // Ensure selection positions are valid
+                    val safeStart = selectionStart.coerceIn(0, currentText.length)
+                    val safeEnd = selectionEnd.coerceIn(safeStart, currentText.length)
+
+                    // Replace selected text or insert at cursor position
+                    val updatedText = if (safeStart != safeEnd) {
+                        currentText.replaceRange(safeStart, safeEnd, newText)
+                    } else {
+                        currentText.substring(0, safeStart) + newText + currentText.substring(safeStart)
+                    }
+
+                    // Update the EditText and maintain cursor position
+                    voiceInput.setText(updatedText)
+                    voiceInput.setSelection(safeStart + newText.length)
+
+                    // Send updated text to API
+                    sendTextToApi(updatedText)
                 }
             }
             requestCode == SETTINGS_REQUEST_CODE && resultCode == RESULT_OK -> {
@@ -129,6 +171,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun clearText() {
         voiceInput.text.clear()
@@ -183,7 +226,21 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                // Handle response if needed
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Text sent successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Server error: ${response.code}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
         })
     }
