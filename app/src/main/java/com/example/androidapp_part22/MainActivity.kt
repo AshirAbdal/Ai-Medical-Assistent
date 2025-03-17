@@ -8,9 +8,12 @@ import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.text.Editable
 import android.util.Log
-import android.widget.Button
+
+import android.text.TextWatcher
 import android.widget.EditText
+import android.widget.ScrollView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -34,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
+    private lateinit var scrollView: ScrollView
     private lateinit var voiceInput: EditText
     private lateinit var micButton: ImageButton
     private lateinit var clearButton: MaterialButton
@@ -51,6 +54,8 @@ class MainActivity : AppCompatActivity() {
         private const val SETTINGS_REQUEST_CODE = 101
         private const val API_ENDPOINT = "https://voicetotext.free.beeceptor.com"
         private const val API_HISTORY_PATH = "/"
+        private const val PREFS_NAME = "VoiceToTextPrefs"
+        private const val KEY_SAVED_TEXT = "saved_text"
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -75,11 +80,26 @@ class MainActivity : AppCompatActivity() {
     private fun initializeViews() {
         try {
             voiceInput = findViewById(R.id.voiceInput)
+            // Load saved text
+            val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            voiceInput.setText(prefs.getString(KEY_SAVED_TEXT, ""))
+
+            // Add TextWatcher
+            voiceInput.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    saveTextToPreferences()
+                }
+            })
+
+            // Rest of your existing initialization code
             micButton = findViewById(R.id.micButton)
             clearButton = findViewById(R.id.clearButton)
             settingsButton = findViewById(R.id.settingsButton)
             historyButton = findViewById(R.id.historyButton)
             sendButton = findViewById(R.id.sendButton)
+            scrollView = findViewById(R.id.scrollView)
         } catch (e: Exception) {
             Toast.makeText(this, "View Error: ${e.message}", Toast.LENGTH_LONG).show()
             Log.e("MainActivity", "View initialization failed", e)
@@ -162,6 +182,18 @@ class MainActivity : AppCompatActivity() {
                     voiceInput.setText(updatedText)
                     voiceInput.setSelection(safeStart + newText.length)
 
+// Add auto-scroll here (new code)
+//                    voiceInput.post {
+//                        val scrollView = findViewById<ScrollView>(R.id.scrollView)
+//                        scrollView.post {
+//                            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+//                        }
+//                    }
+
+                    scrollView.post {
+                        scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                    }
+
                     // Send updated text to API
                     sendTextToApi(updatedText)
                 }
@@ -172,11 +204,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    private fun saveTextToPreferences() {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        prefs.edit().putString(KEY_SAVED_TEXT, voiceInput.text.toString()).apply()
+    }
     private fun clearText() {
         voiceInput.text.clear()
+        saveTextToPreferences() // Clear saved text
         Toast.makeText(this, "Text cleared", Toast.LENGTH_SHORT).show()
     }
+
 
     private fun openSettings() {
         startActivityForResult(Intent(this, SettingsActivity::class.java), SETTINGS_REQUEST_CODE)
@@ -189,6 +226,8 @@ class MainActivity : AppCompatActivity() {
             "Light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }
+
+
 
     private fun applyPreferences() {
         val prefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
