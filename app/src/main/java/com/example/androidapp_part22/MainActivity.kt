@@ -1,5 +1,7 @@
 package com.example.androidapp_part22
 
+import android.speech.SpeechRecognizer
+import android.speech.RecognitionListener
 
 import android.widget.ImageButton
 import com.google.android.material.button.MaterialButton
@@ -36,7 +38,9 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
 
-
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var speechIntent: Intent
+    private var isListening = false
     private lateinit var scrollView: ScrollView
     private lateinit var voiceInput: EditText
     private lateinit var micButton: ImageButton
@@ -45,17 +49,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var historyButton: MaterialButton
     private lateinit var sendButton: ImageButton
 
-    // Track text selection positions
     private var selectionStart: Int = 0
     private var selectionEnd: Int = 0
 
     companion object {
-        private const val REQUEST_CODE_SPEECH_INPUT = 100
+        private const val REQUEST_CODE_SPEECH_INPUT=100
         private const val SETTINGS_REQUEST_CODE = 101
         private const val API_ENDPOINT = "https://voicetotext.free.beeceptor.com"
         private const val API_HISTORY_PATH = "/"
         private const val PREFS_NAME = "VoiceToTextPrefs"
         private const val KEY_SAVED_TEXT = "saved_text"
+        private const val TAG = "VoiceRecognition"
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -67,33 +71,128 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT).show()
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         applyTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        initializeSpeechRecognizer()
         initializeViews()
         setupListeners()
         applyPreferences()
     }
 
+
+    private fun initializeSpeechRecognizer() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, getPreferredLanguage())
+        }
+
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                isListening = true
+                runOnUiThread { updateMicButtonState() }
+            }
+
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+
+            override fun onError(error: Int) {
+                isListening = false
+                runOnUiThread {
+                    updateMicButtonState()
+                    Toast.makeText(this@MainActivity, "Error: ${getErrorText(error)}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResults(results: Bundle?) {
+                handleRecognitionResults(results)
+                isListening = false
+                runOnUiThread { updateMicButtonState() }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {
+                handleRecognitionResults(partialResults)
+            }
+
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+    }
+
+    private fun handleRecognitionResults(results: Bundle?) {
+        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        matches?.firstOrNull()?.let { result ->
+            runOnUiThread {
+                val currentText = voiceInput.text.toString()
+                val safeStart = selectionStart.coerceIn(0, currentText.length)
+                val safeEnd = selectionEnd.coerceIn(safeStart, currentText.length)
+
+                val updatedText = if (safeStart != safeEnd) {
+                    currentText.replaceRange(safeStart, safeEnd, result)
+                } else {
+                    currentText.substring(0, safeStart) + result + currentText.substring(safeStart)
+                }
+
+                voiceInput.setText(updatedText)
+                voiceInput.setSelection(safeStart + result.length)
+                scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                sendTextToApi(updatedText)
+            }
+        }
+    }
+
+    private fun getErrorText(errorCode: Int): String {
+        return when (errorCode) {
+            SpeechRecognizer.ERROR_AUDIO -> "Audio error"
+            SpeechRecognizer.ERROR_CLIENT -> "Client error"
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Permissions missing"
+            SpeechRecognizer.ERROR_NETWORK -> "Network error"
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
+            SpeechRecognizer.ERROR_NO_MATCH -> "No match"
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Busy"
+            SpeechRecognizer.ERROR_SERVER -> "Server error"
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech"
+            else -> "Unknown error"
+        }
+    }
+
+
+
+    private fun updateMicButtonState() {
+        micButton.setImageResource(
+            if (isListening) R.drawable.ic_stop
+            else R.drawable.ic_mic
+        )
+    }
+
+
     private fun initializeViews() {
         try {
             voiceInput = findViewById(R.id.voiceInput)
-            // Load saved text
             val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             voiceInput.setText(prefs.getString(KEY_SAVED_TEXT, ""))
 
-            // Add TextWatcher
             voiceInput.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 override fun afterTextChanged(s: Editable?) {
                     saveTextToPreferences()
+                    selectionStart = voiceInput.selectionStart
+                    selectionEnd = voiceInput.selectionEnd
                 }
             })
 
-            // Rest of your existing initialization code
+            voiceInput.setOnClickListener {
+                selectionStart = voiceInput.selectionStart
+                selectionEnd = voiceInput.selectionEnd
+            }
+
             micButton = findViewById(R.id.micButton)
             clearButton = findViewById(R.id.clearButton)
             settingsButton = findViewById(R.id.settingsButton)
@@ -107,12 +206,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        micButton.setOnClickListener { checkAudioPermission() }
+        micButton.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.RECORD_AUDIO
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                startVoiceRecognition()
+            } else {
+                checkAudioPermission()
+            }
+        }
         clearButton.setOnClickListener { clearText() }
         settingsButton.setOnClickListener { openSettings() }
         historyButton.setOnClickListener { fetchHistoryFromApi() }
         sendButton.setOnClickListener { onSendButtonClicked() }
     }
+
 
 
     private fun onSendButtonClicked() {
@@ -143,22 +253,28 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startVoiceRecognition() {
-        // Capture current text selection before starting voice input
-        selectionStart = voiceInput.selectionStart
-        selectionEnd = voiceInput.selectionEnd
-
-        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, getPreferredLanguage())
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now")
+        if (!isListening) {
             try {
-                startActivityForResult(this, REQUEST_CODE_SPEECH_INPUT)
+                speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getPreferredLanguage())
+                speechRecognizer.startListening(speechIntent)
             } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Speech recognition unavailable", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Speech recognition unavailable", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            speechRecognizer.stopListening()
+            isListening = false
+            updateMicButtonState()
         }
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+        speechRecognizer.apply {
+            stopListening()
+            destroy()
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -181,15 +297,6 @@ class MainActivity : AppCompatActivity() {
                     // Update the EditText and maintain cursor position
                     voiceInput.setText(updatedText)
                     voiceInput.setSelection(safeStart + newText.length)
-
-// Add auto-scroll here (new code)
-//                    voiceInput.post {
-//                        val scrollView = findViewById<ScrollView>(R.id.scrollView)
-//                        scrollView.post {
-//                            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
-//                        }
-//                    }
-
                     scrollView.post {
                         scrollView.fullScroll(ScrollView.FOCUS_DOWN)
                     }
