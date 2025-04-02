@@ -1,4 +1,31 @@
 <resources>
+
+    <!-- Primary brand color -->
+    <color name="colorPrimary">#6750A4</color>
+    <color name="colorPrimaryDark">#4F378B</color>
+    <color name="colorPrimaryVariant">#7E67C5</color>
+
+    <!-- Secondary color -->
+    <color name="colorSecondary">#958DA5</color>
+    <color name="colorSecondaryDark">#625B71</color>
+    <color name="colorSecondaryVariant">#B58392</color>
+
+    <!-- Status colors -->
+    <color name="colorAccent">#B58392</color>
+    <color name="colorError">#B00020</color>
+
+    <!-- Neutral colors -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="background">#FFFBFE</color>
+    <color name="surface">#FFFBFE</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="onSecondary">#FFFFFF</color>
+
+    <!-- Text colors -->
+    <color name="textPrimary">#1C1B1F</color>
+    <color name="textSecondary">#49454F</color>
+
     <!-- Light theme colors -->
     <color name="md_theme_light_primary">#6750A4</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
@@ -12,7 +39,7 @@
     <!-- res/values/colors.xml -->
     <color name="brand_green">#4CAF50</color>
     <color name="brand_green_20">#334CAF50</color>
-    <color name="white">#FFFFFF</color>
+
     <!-- Dark theme colors -->
     <color name="md_theme_dark_primary">#D0BCFF</color>
     <color name="md_theme_dark_onPrimary">#381E72</color>

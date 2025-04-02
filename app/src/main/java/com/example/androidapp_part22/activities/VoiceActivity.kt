@@ -1,20 +1,20 @@
-package com.example.androidapp_part22
+package com.example.androidapp_part22.activities
 
-import android.speech.SpeechRecognizer
-import android.speech.RecognitionListener
-
-import android.widget.ImageButton
-import com.google.android.material.button.MaterialButton
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.Editable
-import android.util.Log
-
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ScrollView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +23,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.androidapp_part22.R
+import com.example.androidapp_part22.fragments.SettingsFragment
+import com.google.android.material.button.MaterialButton
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.FormBody
@@ -31,13 +34,14 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import org.json.JSONArray
-import org.json.JSONObject // Added missing import
+import org.json.JSONObject
 import java.io.IOException
 import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+class VoiceActivity : AppCompatActivity() {
 
-
+    private var shouldContinueListening = true
+    private val handler = Handler(Looper.getMainLooper())
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var speechIntent: Intent
     private var isListening = false
@@ -48,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var settingsButton: MaterialButton
     private lateinit var historyButton: MaterialButton
     private lateinit var sendButton: ImageButton
-
+    private lateinit var backButton: ImageButton
     private var selectionStart: Int = 0
     private var selectionEnd: Int = 0
 
@@ -60,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         private const val PREFS_NAME = "VoiceToTextPrefs"
         private const val KEY_SAVED_TEXT = "saved_text"
         private const val TAG = "VoiceRecognition"
+
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -75,21 +80,59 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         applyTheme()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_voice)
 
         initializeSpeechRecognizer()
         initializeViews()
+        setupBackButton()
         setupListeners()
         applyPreferences()
     }
 
+    private fun setupBackButton() {
+        backButton = findViewById(R.id.backButton)
+        backButton.setOnClickListener {
+            showExitConfirmationDialog()
+        }
+    }
 
+    private fun showExitConfirmationDialog() {
+        val currentText = voiceInput.text.toString()
+        if (currentText.isEmpty()) {
+            // If text is empty, redirect directly
+            navigateToDashboard()
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Save before exiting?")
+            .setMessage("Do you want to save your current text?")
+            .setPositiveButton("Save Text") { _, _ ->
+                sendTextToApi(currentText)
+                navigateToDashboard()
+            }
+            .setNegativeButton("Don't Save") { _, _ ->
+                clearText()
+                navigateToDashboard()
+            }
+            .setNeutralButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    private fun navigateToDashboard() {
+        val intent = Intent(this, DashboardActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+        finish()
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+    }
     private fun initializeSpeechRecognizer() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, getPreferredLanguage())
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false) // Prevent duplicates
         }
 
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
@@ -99,31 +142,51 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onBeginningOfSpeech() {}
+
             override fun onRmsChanged(rmsdB: Float) {}
+
             override fun onBufferReceived(buffer: ByteArray?) {}
+
             override fun onEndOfSpeech() {}
+
+            override fun onResults(results: Bundle?) {
+                handleRecognitionResults(results)
+                if (shouldContinueListening) {
+                    speechRecognizer.startListening(speechIntent) // Automatically restart
+                } else {
+                    isListening = false
+                    runOnUiThread { updateMicButtonState() }
+                }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {
+                // Removed partial handling to avoid duplication issues
+            }
 
             override fun onError(error: Int) {
                 isListening = false
                 runOnUiThread {
                     updateMicButtonState()
-                    Toast.makeText(this@MainActivity, "Error: ${getErrorText(error)}", Toast.LENGTH_SHORT).show()
+                    if (error != SpeechRecognizer.ERROR_NO_MATCH) {
+                        Toast.makeText(
+                            this@VoiceActivity,
+                            "Error: ${getErrorText(error)}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
-            }
 
-            override fun onResults(results: Bundle?) {
-                handleRecognitionResults(results)
-                isListening = false
-                runOnUiThread { updateMicButtonState() }
-            }
-
-            override fun onPartialResults(partialResults: Bundle?) {
-                handleRecognitionResults(partialResults)
+                // Restart listening automatically unless explicitly stopped or permission issue
+                if (shouldContinueListening && error != SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
+                    speechRecognizer.cancel()
+                    speechRecognizer.startListening(speechIntent)
+                }
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {}
         })
     }
+
 
     private fun handleRecognitionResults(results: Bundle?) {
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
@@ -162,15 +225,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun updateMicButtonState() {
+        Log.d(TAG, "Mic state - Listening: $isListening, ShouldContinue: $shouldContinueListening")
         micButton.setImageResource(
             if (isListening) R.drawable.ic_stop
             else R.drawable.ic_mic
         )
     }
-
 
     private fun initializeViews() {
         try {
@@ -205,25 +266,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun setupListeners() {
         micButton.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.RECORD_AUDIO
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                startVoiceRecognition()
+            if (isListening) {
+                stopVoiceRecognition()
             } else {
-                checkAudioPermission()
+                startVoiceRecognition() // Ensure permission is checked before starting
             }
         }
-        clearButton.setOnClickListener { clearText() }
+
         settingsButton.setOnClickListener { openSettings() }
+        clearButton.setOnClickListener { clearText() }
         historyButton.setOnClickListener { fetchHistoryFromApi() }
         sendButton.setOnClickListener { onSendButtonClicked() }
     }
-
-
 
     private fun onSendButtonClicked() {
         val text = voiceInput.text.toString().trim()
@@ -239,37 +297,80 @@ class MainActivity : AppCompatActivity() {
         when {
             ContextCompat.checkSelfPermission(
                 this,
-                android.Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED -> startVoiceRecognition()
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                speechRecognizer.startListening(speechIntent)
+            }
 
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
-                android.Manifest.permission.RECORD_AUDIO
-            ) -> Toast.makeText(this, "Microphone access needed", Toast.LENGTH_LONG).show()
+                Manifest.permission.RECORD_AUDIO
+            ) -> {
+                Toast.makeText(this, "Microphone access is required for speech recognition.", Toast.LENGTH_LONG).show()
+                requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
 
-            else -> requestPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+            else -> requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
 
+    // Add this as a class property
+    private val recognitionListener = object : RecognitionListener {
+        override fun onReadyForSpeech(params: Bundle?) {
+            isListening = true
+            runOnUiThread { updateMicButtonState() }
+        }
+
+        override fun onBeginningOfSpeech() {}
+        override fun onRmsChanged(rmsdB: Float) {}
+        override fun onBufferReceived(buffer: ByteArray?) {}
+        override fun onEndOfSpeech() {}
+
+        override fun onResults(results: Bundle?) {
+            handleRecognitionResults(results)
+            isListening = shouldContinueListening
+            runOnUiThread { updateMicButtonState() }
+        }
+
+        override fun onError(error: Int) {
+            isListening = false
+            runOnUiThread {
+                updateMicButtonState()
+                when (error) {
+                    SpeechRecognizer.ERROR_NO_MATCH -> {}
+                    else -> Toast.makeText(
+                        this@VoiceActivity,
+                        "Error: ${getErrorText(error)}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        override fun onPartialResults(partialResults: Bundle?) {
+            handleRecognitionResults(partialResults)
+        }
+
+        override fun onEvent(eventType: Int, params: Bundle?) {}
+    }
 
     private fun startVoiceRecognition() {
         if (!isListening) {
-            try {
-                speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getPreferredLanguage())
-                speechRecognizer.startListening(speechIntent)
-            } catch (e: Exception) {
-                Toast.makeText(this, "Speech recognition unavailable", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            speechRecognizer.stopListening()
-            isListening = false
-            updateMicButtonState()
+            shouldContinueListening = true
+            checkAudioPermission()
         }
     }
 
+    private fun stopVoiceRecognition() {
+        shouldContinueListening = false
+        isListening = false
+        speechRecognizer.stopListening()
+        updateMicButtonState()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
         speechRecognizer.apply {
             stopListening()
             destroy()
@@ -279,32 +380,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when {
-            requestCode == REQUEST_CODE_SPEECH_INPUT && resultCode == RESULT_OK -> {
-                data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let { newText ->
-                    val currentText = voiceInput.text.toString()
 
-                    // Ensure selection positions are valid
-                    val safeStart = selectionStart.coerceIn(0, currentText.length)
-                    val safeEnd = selectionEnd.coerceIn(safeStart, currentText.length)
-
-                    // Replace selected text or insert at cursor position
-                    val updatedText = if (safeStart != safeEnd) {
-                        currentText.replaceRange(safeStart, safeEnd, newText)
-                    } else {
-                        currentText.substring(0, safeStart) + newText + currentText.substring(safeStart)
-                    }
-
-                    // Update the EditText and maintain cursor position
-                    voiceInput.setText(updatedText)
-                    voiceInput.setSelection(safeStart + newText.length)
-                    scrollView.post {
-                        scrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                    }
-
-                    // Send updated text to API
-                    sendTextToApi(updatedText)
-                }
-            }
             requestCode == SETTINGS_REQUEST_CODE && resultCode == RESULT_OK -> {
                 recreate()
             }
@@ -321,9 +397,8 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Text cleared", Toast.LENGTH_SHORT).show()
     }
 
-
     private fun openSettings() {
-        startActivityForResult(Intent(this, SettingsActivity::class.java), SETTINGS_REQUEST_CODE)
+        startActivityForResult(Intent(this, SettingsFragment::class.java), SETTINGS_REQUEST_CODE)
     }
 
     private fun applyTheme() {
@@ -333,8 +408,6 @@ class MainActivity : AppCompatActivity() {
             "Light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }
-
-
 
     private fun applyPreferences() {
         val prefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
@@ -367,7 +440,7 @@ class MainActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Failed to send text: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@VoiceActivity, "Failed to send text: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -375,13 +448,13 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     if (response.isSuccessful) {
                         Toast.makeText(
-                            this@MainActivity,
+                            this@VoiceActivity,
                             "Text sent successfully!",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
                         Toast.makeText(
-                            this@MainActivity,
+                            this@VoiceActivity,
                             "Server error: ${response.code}",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -404,7 +477,7 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
                     Toast.makeText(
-                        this@MainActivity,
+                        this@VoiceActivity,
                         "History error: ${e.message}",
                         Toast.LENGTH_LONG
                     ).show()
@@ -416,7 +489,7 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         val error = "HTTP ${response.code} - ${response.message}"
                         Toast.makeText(
-                            this@MainActivity,
+                            this@VoiceActivity,
                             "History error: $error",
                             Toast.LENGTH_LONG
                         ).show()
@@ -429,7 +502,7 @@ class MainActivity : AppCompatActivity() {
                     try {
                         if (responseBody.isNullOrEmpty()) {
                             Toast.makeText(
-                                this@MainActivity,
+                                this@VoiceActivity,
                                 "No history entries found",
                                 Toast.LENGTH_SHORT
                             ).show()
@@ -449,7 +522,7 @@ class MainActivity : AppCompatActivity() {
 
                         if (historyList.isEmpty()) {
                             Toast.makeText(
-                                this@MainActivity,
+                                this@VoiceActivity,
                                 "History is empty",
                                 Toast.LENGTH_SHORT
                             ).show()
@@ -460,7 +533,7 @@ class MainActivity : AppCompatActivity() {
 
                     } catch (e: Exception) {
                         Toast.makeText(
-                            this@MainActivity,
+                            this@VoiceActivity,
                             "Failed to parse history",
                             Toast.LENGTH_LONG
                         ).show()

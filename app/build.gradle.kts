@@ -3,6 +3,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android") version "2.0.0"
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0" // Add this
+    id ("kotlin-parcelize")
 }
 
 android {
@@ -79,12 +80,16 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("androidx.activity:activity-ktx:1.9.0")
-
+    implementation ("androidx.preference:preference-ktx:1.2.1")
+    implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("com.google.android.material:material:1.9.0")
     // Networking
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation ("com.google.android.material:material:1.9.0")
     // Jetpack Compose
-
+    implementation ("com.google.android.material:material:1.6.0")
+    //noinspection UseTomlInstead
+    implementation ("com.mikhaellopez:circularimageview:4.3.1")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
