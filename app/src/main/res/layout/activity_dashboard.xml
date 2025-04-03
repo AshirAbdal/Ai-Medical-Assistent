@@ -2,13 +2,18 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Added focusable attributes to handle touch outside -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:descendantFocusability="beforeDescendants">
 
         <!-- Top Bar -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,7 +50,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Search patients..."
                     android:textColorHint="#4CAF50"
-                    android:textColor="#4CAF50"/>
+                    android:textColor="#4CAF50"
+                    android:imeOptions="actionDone"/>
             </com.google.android.material.textfield.TextInputLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -59,6 +65,7 @@
             android:layout_marginTop="12dp"
             android:background="#334CAF50">
 
+            <!-- Buttons remain the same -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/myPatientButton"
                 style="@style/Widget.Material3.Button.TextButton"

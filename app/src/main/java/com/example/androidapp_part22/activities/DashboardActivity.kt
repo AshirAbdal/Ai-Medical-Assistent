@@ -1,12 +1,17 @@
 package com.example.androidapp_part22.activities
 
+
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager  // Add this line
 import androidx.appcompat.app.AppCompatActivity
 import com.example.androidapp_part22.fragments.AllPatientsFragment
 import com.example.androidapp_part22.fragments.MyPatientsFragment
@@ -16,6 +21,8 @@ import com.example.androidapp_part22.fragments.SettingsFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+
 
 class DashboardActivity : AppCompatActivity() {
     private lateinit var searchInput: TextInputEditText
@@ -28,9 +35,9 @@ class DashboardActivity : AppCompatActivity() {
     private var currentSearchListener: SearchListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         applySavedTheme()
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_dashboard)
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
@@ -38,6 +45,40 @@ class DashboardActivity : AppCompatActivity() {
         setupSearchView()
         setupMenuButtons()
         loadInitialFragment()
+        setupTouchListener()
+
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupTouchListener() {
+        findViewById<CoordinatorLayout>(R.id.rootLayout).setOnTouchListener { _, event ->
+            handleTouchOutsideSearch(event)
+            false
+        }
+    }
+
+    private fun handleTouchOutsideSearch(event: MotionEvent) {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val searchInput = findViewById<TextInputEditText>(R.id.searchInput)
+            val rect = Rect().apply { searchInput.getGlobalVisibleRect(this) }
+
+            // Convert touch coordinates correctly
+            val touchX = event.rawX.toInt()
+            val touchY = event.rawY.toInt()
+
+            if (!rect.contains(touchX, touchY)) {
+                searchInput.clearFocus()
+                hideKeyboard()
+
+                // Clear focus from all views
+                window.decorView.clearFocus()
+            }
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 
     private fun applySavedTheme() {
