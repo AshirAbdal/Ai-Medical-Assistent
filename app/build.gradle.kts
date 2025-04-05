@@ -90,6 +90,7 @@ dependencies {
     implementation ("com.google.android.material:material:1.6.0")
     //noinspection UseTomlInstead
     implementation ("com.mikhaellopez:circularimageview:4.3.1")
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")

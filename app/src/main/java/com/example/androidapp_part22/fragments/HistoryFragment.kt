@@ -1,15 +1,20 @@
 package com.example.androidapp_part22.fragments
 
+import android.widget.Toast
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.androidapp_part22.R
+import com.example.androidapp_part22.activities.VoiceActivity
+import com.example.androidapp_part22.models.HistoryEntry
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -18,7 +23,9 @@ class HistoryFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyStateTextView: TextView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var historyAdapter: HistoryAdapter
+    private val historyEntries = mutableListOf<HistoryEntry>()
 
     companion object {
         fun newInstance(): HistoryFragment {
@@ -40,87 +47,132 @@ class HistoryFragment : Fragment() {
         // Initialize views
         recyclerView = view.findViewById(R.id.historyRecyclerView)
         emptyStateTextView = view.findViewById(R.id.emptyStateTextView)
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
 
         // Set up RecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        setupRecyclerView()
 
-        // Load history data
-        loadHistoryData()
+        // Setup Swipe Refresh
+        setupSwipeRefresh()
+
+        // Load dummy history data
+        loadDummyHistoryData()
     }
 
-    private fun loadHistoryData() {
-        // In a real app, you would fetch this from SharedPreferences, database, or API
-        val historyEntries = getDummyHistoryEntries()
+    private fun setupRecyclerView() {
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        historyAdapter = HistoryAdapter(historyEntries) { historyEntry ->
+            copyToSpeechToText(historyEntry)
+        }
+        recyclerView.adapter = historyAdapter
+    }
 
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            loadDummyHistoryData()
+        }
+    }
+
+    private fun loadDummyHistoryData() {
+        // Simulate a refresh
+        swipeRefreshLayout.isRefreshing = true
+
+        // Clear previous entries
+        historyEntries.clear()
+
+        // Add dummy history entries
+        historyEntries.addAll(generateDummyHistoryEntries())
+
+        // Update UI
+        activity?.runOnUiThread {
+            swipeRefreshLayout.isRefreshing = false
+            updateHistoryUI()
+        }
+    }
+
+    private fun generateDummyHistoryEntries(): List<HistoryEntry> {
+        val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+        val currentTime = System.currentTimeMillis()
+
+        return listOf(
+            HistoryEntry(
+                "Patient presented with symptoms of seasonal allergy including nasal congestion and itchy eyes.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 30)) // 30 minutes ago
+            ),
+            HistoryEntry(
+                "Follow-up examination shows improvement in respiratory function after two weeks on the prescribed medication.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 60 * 2)) // 2 hours ago
+            ),
+            HistoryEntry(
+                "Recommended increasing fluid intake and rest for the next 48 hours. Patient should return if fever persists.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 60 * 24)) // 1 day ago
+            ),
+            HistoryEntry(
+                "Blood pressure readings: 120/80, 118/78, 122/82. Overall within normal range.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 60 * 24 * 2)) // 2 days ago
+            ),
+            HistoryEntry(
+                "Patient reports improved mobility following physical therapy sessions. Recommend continuing exercises at home.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 60 * 24 * 3)) // 3 days ago
+            )
+        )
+    }
+
+    private fun updateHistoryUI() {
         if (historyEntries.isEmpty()) {
-            // Show empty state
-            recyclerView.visibility = View.GONE
-            emptyStateTextView.visibility = View.VISIBLE
+            showEmptyState()
         } else {
             // Show history list
             recyclerView.visibility = View.VISIBLE
             emptyStateTextView.visibility = View.GONE
 
-            // Set up adapter
-            historyAdapter = HistoryAdapter(historyEntries) { historyEntry ->
-                // Handle click on history item
-                copyToSpeechToText(historyEntry)
-            }
-            recyclerView.adapter = historyAdapter
+            // Notify adapter of data changes
+            historyAdapter.notifyDataSetChanged()
         }
     }
 
-    private fun getDummyHistoryEntries(): List<HistoryEntry> {
-        // Create dummy data with realistic transcriptions
-        val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-
-        return listOf(
-            HistoryEntry(
-                "Patient presented with symptoms of seasonal allergy including nasal congestion and itchy eyes.",
-                dateFormat.format(Date(System.currentTimeMillis() - 1000 * 60 * 30)) // 30 minutes ago
-            ),
-            HistoryEntry(
-                "Follow-up examination shows improvement in respiratory function after two weeks on the prescribed medication.",
-                dateFormat.format(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 2)) // 2 hours ago
-            ),
-            HistoryEntry(
-                "Recommended increasing fluid intake and rest for the next 48 hours. Patient should return if fever persists.",
-                dateFormat.format(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24)) // 1 day ago
-            ),
-            HistoryEntry(
-                "Blood pressure readings: 120/80, 118/78, 122/82. Overall within normal range.",
-                dateFormat.format(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 2)) // 2 days ago
-            ),
-            HistoryEntry(
-                "Patient reports improved mobility following physical therapy sessions. Recommend continuing exercises at home.",
-                dateFormat.format(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 3)) // 3 days ago
-            ),
-            HistoryEntry(
-                "Scheduled follow-up appointment for next month to reassess medication dosage and effectiveness.",
-                dateFormat.format(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 5)) // 5 days ago
-            ),
-            HistoryEntry(
-                "Discussed diet modifications to reduce inflammation. Suggested Mediterranean diet with emphasis on omega-3 rich foods.",
-                dateFormat.format(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 7)) // 1 week ago
-            )
-        )
+    private fun showEmptyState() {
+        recyclerView.visibility = View.GONE
+        emptyStateTextView.visibility = View.VISIBLE
+        emptyStateTextView.text = "No history entries found"
     }
 
     private fun copyToSpeechToText(historyEntry: HistoryEntry) {
-        // In a real app, you would communicate with SpeechToTextFragment to paste this text
-        // For now, just show a toast
-        Toast.makeText(
-            requireContext(),
-            "Text copied to editor: ${historyEntry.text.take(20)}...",
-            Toast.LENGTH_SHORT
-        ).show()
+        // Find the VoiceActivity
+        (activity as? VoiceActivity)?.let { voiceActivity ->
+            // Switch to the Speech to Text tab
+            voiceActivity.tabLayout.getTabAt(0)?.select()
+
+            // Find the SpeechToTextFragment
+            val fragmentManager = parentFragmentManager
+            val speechToTextFragment = fragmentManager.fragments
+                .firstOrNull { it is SpeechToTextFragment } as? SpeechToTextFragment
+
+            // If fragment exists and has a public method to set text, use it
+            if (speechToTextFragment != null) {
+                try {
+                    // Use reflection to call the method if direct method call fails
+                    val method = speechToTextFragment.javaClass.getMethod("setTextFromHistory", String::class.java)
+                    method.invoke(speechToTextFragment, historyEntry.text)
+                } catch (e: Exception) {
+                    // Fallback: show the text directly
+                    Toast.makeText(
+                        requireContext(),
+                        "Copied: ${historyEntry.text.take(100)}...",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Unable to copy text. Speech to Text fragment not found.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
-    // Model class for history entries
-    data class HistoryEntry(
-        val text: String,
-        val timestamp: String
-    )
+
 
     // Adapter for the RecyclerView
     inner class HistoryAdapter(
