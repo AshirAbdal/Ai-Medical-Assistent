@@ -1,13 +1,12 @@
 package com.example.androidapp_part22.fragments
 
-import android.widget.Toast
 
+import android.widget.Toast
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -96,6 +95,21 @@ class HistoryFragment : Fragment() {
 
         return listOf(
             HistoryEntry(
+                "Patient presented with symptoms of seasonal allergy including nasal congestion and itchy eyes.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 30)) // 30 minutes ago
+            ),
+            HistoryEntry(
+                "Follow-up examination shows improvement in respiratory function after two weeks on the prescribed medication.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 60 * 2)) // 2 hours ago
+            ),
+            HistoryEntry(
+                "Patient presented with symptoms of seasonal allergy including nasal congestion and itchy eyes.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 30)) // 30 minutes ago
+            ),
+            HistoryEntry(
+                "Follow-up examination shows improvement in respiratory function after two weeks on the prescribed medication.",
+                dateFormat.format(Date(currentTime - 1000 * 60 * 60 * 2)) // 2 hours ago
+            ),    HistoryEntry(
                 "Patient presented with symptoms of seasonal allergy including nasal congestion and itchy eyes.",
                 dateFormat.format(Date(currentTime - 1000 * 60 * 30)) // 30 minutes ago
             ),

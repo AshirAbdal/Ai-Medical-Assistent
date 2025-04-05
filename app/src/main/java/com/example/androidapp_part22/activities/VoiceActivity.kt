@@ -15,15 +15,7 @@ import com.example.androidapp_part22.fragments.HistoryFragment
 import com.example.androidapp_part22.fragments.SettingsFragment
 import com.example.androidapp_part22.fragments.SpeechToTextFragment
 import com.google.android.material.tabs.TabLayout
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.IOException
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import java.util.Locale
+
 
 class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -171,7 +163,7 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
             supportFragmentManager.popBackStack()
             tabLayout.getTabAt(TAB_TEXT)?.select()
         } else {
-            showExitConfirmationDialog()
+            super.onBackPressed() // Call the superclass method
         }
     }
 
