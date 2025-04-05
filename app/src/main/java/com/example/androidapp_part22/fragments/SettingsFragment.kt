@@ -82,33 +82,34 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         textSizeInput.setText(prefs.getFloat("textSize", 18f).toString())
 
         // Load language
-        prefs.getString("language", Locale.getDefault().language)?.let { lang ->
-            val index = languages.indexOfFirst { it.second == lang }
-            if (index != -1) languageSpinner.setSelection(index)
+        val currentLang = prefs.getString("language", Locale.getDefault().language) ?: "en"
+        val index = languages.indexOfFirst { it.second == currentLang }
+        if (index != -1) {
+            languageSpinner.setSelection(index)
         }
 
         // Load theme
-        themeSpinner.setSelection(
-            (themeSpinner.adapter as ArrayAdapter<String>).getPosition(
-                prefs.getString("theme", "System Default")
-            )
-        )
+        val currentTheme = prefs.getString("theme", "System Default") ?: "System Default"
+        val themeAdapter = themeSpinner.adapter as ArrayAdapter<String>
+        val themePosition = themeAdapter.getPosition(currentTheme)
+        if (themePosition != -1) {
+            themeSpinner.setSelection(themePosition)
+        }
 
         // Load font style
-        fontStyleSpinner.setSelection(
-            (fontStyleSpinner.adapter as ArrayAdapter<String>).getPosition(
-                prefs.getString("fontStyle", "Normal")
-            )
-        )
+        val currentStyle = prefs.getString("fontStyle", "Normal") ?: "Normal"
+        val styleAdapter = fontStyleSpinner.adapter as ArrayAdapter<String>
+        val stylePosition = styleAdapter.getPosition(currentStyle)
+        if (stylePosition != -1) {
+            fontStyleSpinner.setSelection(stylePosition)
+        }
     }
-
-
 
     private fun setupButtonListeners(view: View) {
         view.findViewById<Button>(R.id.saveButton).setOnClickListener {
             if (validateInputs()) {
                 savePreferences()
-                applySettings()
+                // Don't recreate the activity, just notify about changes
                 Toast.makeText(requireContext(), "Settings saved", Toast.LENGTH_SHORT).show()
 
                 // Navigate back programmatically after saving
@@ -116,12 +117,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             } else {
                 Toast.makeText(requireContext(), "Invalid input", Toast.LENGTH_SHORT).show()
             }
-
         }
     }
 
     private fun validateInputs(): Boolean {
-        return textSizeInput.text.toString().toFloatOrNull() != null &&
+        val textSizeValue = textSizeInput.text.toString().toFloatOrNull()
+        return textSizeValue != null && textSizeValue > 0 &&
                 languageSpinner.selectedItemPosition in languages.indices
     }
 
@@ -133,12 +134,9 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             putString("theme", themeSpinner.selectedItem.toString())
             apply()
         }
-    }
 
-    private fun applySettings() {
+        // Apply theme changes immediately
         applyTheme()
-        applyLanguage()
-        requireActivity().recreate()
     }
 
     private fun applyTheme() {
@@ -149,18 +147,5 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
 
         AppCompatDelegate.setDefaultNightMode(themeMode)
-
-        // Add this to ensure theme persists
-        prefs.edit().putString("theme", themeSpinner.selectedItem.toString()).apply()
-    }
-
-    private fun applyLanguage() {
-        val langCode = languages[languageSpinner.selectedItemPosition].second
-        val locale = Locale(langCode)
-        Locale.setDefault(locale)
-
-        val config = Configuration()
-        config.setLocale(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
     }
 }

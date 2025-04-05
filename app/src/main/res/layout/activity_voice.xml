@@ -1,179 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.VoiceActivity">
+    android:orientation="vertical"
+    android:background="#F5F5F5">
 
-    <!-- Top Bar with Back Button, Logo and Search -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/topBar"
+    <!-- Toolbar with back button -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="8dp"
-        android:paddingHorizontal="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        app:contentInsetStart="0dp">
 
-        <!-- Back Button -->
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="8dp"
-            android:background="@null"
-        android:contentDescription="Navigate back"
-        android:src="@drawable/ic_arrow_back"
-        app:layout_constraintBottom_toBottomOf="@id/logoImageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/logoImageView"
-        app:tint="#4CAF50"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        <!-- Logo -->
-        <ImageView
-            android:id="@+id/logoImageView"
-            android:layout_width="83dp"
-            android:layout_height="51dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="Ethizo Logo"
-            android:src="@drawable/ethizo_logo"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/backButton"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_back" />
 
-        <!-- Search Input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:layout_constraintStart_toEndOf="@id/logoImageView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="#4CAF50"
-            app:hintTextColor="#4CAF50">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="Search..."
-                android:textColorHint="#4CAF50"
-                android:textColor="#4CAF50"/>
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:paddingStart="16dp"
+                android:text="Voice to Text"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Rest of the layout remains same -->
-    <LinearLayout
-        android:id="@+id/menuBar"
+    <!-- Menu Tabs -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
-        android:background="#334CAF50"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:background="@android:color/white"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="#4CAF50"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="#4CAF50"
+        app:tabTextColor="@android:color/darker_gray">
 
-        <!-- Existing menu items unchanged -->
-        <ImageButton
-            android:id="@+id/micButton"
-            android:layout_width="54dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_mic"
-            android:contentDescription="Microphone"
-            app:tint="#4CAF50" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/clearButton"
-            style="@style/Widget.Material3.Button.TextButton"
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Clear"
-            android:textColor="#4CAF50"
-            app:iconTint="#4CAF50"/>
+            android:text="Text" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/settingsButton"
-            style="@style/Widget.Material3.Button.TextButton"
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Settings"
-            android:textColor="#4CAF50"
-            app:iconTint="#4CAF50"/>
+            android:text="Settings" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/historyButton"
-            style="@style/Widget.Material3.Button.TextButton"
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="History"
-            android:textColor="#4CAF50"
-            app:iconTint="#4CAF50"/>
+            android:text="History" />
+    </com.google.android.material.tabs.TabLayout>
 
-    </LinearLayout>
-
-    <ScrollView
-        android:id="@+id/scrollView"
+    <!-- Fragment Container -->
+    <FrameLayout
+        android:id="@+id/contentFrame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="0dp"
-        app:layout_constraintTop_toBottomOf="@id/menuBar"
-        app:layout_constraintBottom_toTopOf="@id/sendButtonContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_max="@dimen/edittext_max_height"
-        android:fillViewport="true"
-        android:background="@android:color/transparent">
-
-        <EditText
-            android:id="@+id/voiceInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Speak now..."
-            android:inputType="textMultiLine"
-            android:minLines="15"
-            android:maxLines="10"
-            android:scrollbars="vertical"
-            android:padding="16dp"
-            android:textSize="16sp"
-            android:textColor="#4CAF50"
-            android:background="@null"/>
-    </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/sendButtonContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageButton
-            android:id="@+id/sendButton"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Send"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_send"
-            app:tint="#4CAF50"
-            android:elevation="4dp"
-            android:stateListAnimator="@null"
-            android:padding="16dp"/>
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_weight="1" />
+</LinearLayout>

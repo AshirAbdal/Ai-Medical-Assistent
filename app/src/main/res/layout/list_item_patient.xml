@@ -1,68 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:padding="16dp"
-    android:gravity="center_vertical"
-    android:background="?android:attr/selectableItemBackground">
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
 
-    <!-- Gender Icon -->
-    <ImageView
-        android:id="@+id/ivGender"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="16dp"/>
-
-    <!-- Patient Info Column -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:padding="16dp">
 
-        <!-- Patient Name -->
-        <TextView
-            android:id="@+id/tvPatientName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+        <ImageView
+            android:id="@+id/ivGender"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_profile_placeholder"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="Gender icon"/>
 
-        <!-- Age and Gender Row -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
 
-            <!-- Age -->
             <TextView
-                android:id="@+id/tvAge"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPatientName"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"/>
+                android:text="Patient Name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000"/>
 
-            <!-- Gender -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/tvAge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Age: 45"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/tvGender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gender: Male"
+                    android:textSize="14sp"
+                    android:layout_marginStart="16dp"/>
+            </LinearLayout>
+
             <TextView
-                android:id="@+id/tvGender"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPatientId"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textSize="14sp"/>
-
+                android:text="ID: P1001"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:textColor="#757575"/>
         </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_right"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="View details"/>
     </LinearLayout>
-
-    <!-- Patient ID -->
-    <TextView
-        android:id="@+id/tvPatientId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:layout_marginStart="8dp"
-        android:paddingEnd="4dp"/>
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

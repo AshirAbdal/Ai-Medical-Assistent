@@ -1,6 +1,5 @@
 package com.example.androidapp_part22.activities
 
-
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
@@ -11,42 +10,42 @@ import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
-import android.view.inputmethod.InputMethodManager  // Add this line
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import com.example.androidapp_part22.fragments.AllPatientsFragment
 import com.example.androidapp_part22.fragments.MyPatientsFragment
 import com.example.androidapp_part22.fragments.PatientListFragment
 import com.example.androidapp_part22.R
 import com.example.androidapp_part22.fragments.SettingsFragment
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.textfield.TextInputEditText
 
-
-class DashboardActivity : AppCompatActivity() {
+class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var searchInput: TextInputEditText
-    private lateinit var myPatientButton: MaterialButton
-    private lateinit var allPatientButton: MaterialButton
-    private lateinit var settingsButton: MaterialButton
-    private val selectedColor = "#4CAF50"
-    private val defaultColor = "#2E7D32"
+    private lateinit var tabLayout: TabLayout
     private lateinit var prefs: SharedPreferences
     private var currentSearchListener: SearchListener? = null
 
+    // Tab indices
+    private val TAB_MY_PATIENTS = 0
+    private val TAB_ALL_PATIENTS = 1
+    private val TAB_SETTINGS = 2
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs.registerOnSharedPreferenceChangeListener(this)
 
         applySavedTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
-        prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
         initViews()
         setupSearchView()
-        setupMenuButtons()
+        setupTabLayout()
         loadInitialFragment()
         setupTouchListener()
-
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -78,11 +77,12 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun hideKeyboard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        currentFocus?.let {
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
     }
 
     private fun applySavedTheme() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         when (prefs.getString("theme", "System Default")) {
             "Light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             "Dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -98,10 +98,8 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        myPatientButton = findViewById(R.id.myPatientButton)
-        allPatientButton = findViewById(R.id.allPatientButton)
-        settingsButton = findViewById(R.id.settingsButton)
         searchInput = findViewById(R.id.searchInput)
+        tabLayout = findViewById(R.id.tabLayout)
     }
 
     private fun setupSearchView() {
@@ -114,49 +112,43 @@ class DashboardActivity : AppCompatActivity() {
         })
     }
 
-    private fun setupMenuButtons() {
-        setSelectedButton(myPatientButton)
+    private fun setupTabLayout() {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                when (tab.position) {
+                    TAB_MY_PATIENTS -> {
+                        val fragment = MyPatientsFragment()
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.contentFrame, fragment)
+                            .commitNow()
+                        currentSearchListener = fragment
+                    }
+                    TAB_ALL_PATIENTS -> {
+                        val fragment = AllPatientsFragment()
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.contentFrame, fragment)
+                            .commitNow()
+                        currentSearchListener = fragment
+                    }
+                    TAB_SETTINGS -> {
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.contentFrame, SettingsFragment())
+                            .addToBackStack("settings")
+                            .commit()
+                        currentSearchListener = null
+                    }
+                }
+            }
 
-
-        myPatientButton.setOnClickListener {
-            setSelectedButton(it as MaterialButton)
-            val fragment = MyPatientsFragment()
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.contentFrame, fragment)
-                .commitNow() // Use commitNow to execute immediately
-            currentSearchListener = fragment
-        }
-
-        allPatientButton.setOnClickListener {
-            setSelectedButton(it as MaterialButton)
-            val fragment = AllPatientsFragment()
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.contentFrame, fragment)
-                .commitNow() // Use commitNow to execute immediately
-            currentSearchListener = fragment
-        }
-        settingsButton.setOnClickListener {
-            setSelectedButton(it as MaterialButton)
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.contentFrame, SettingsFragment())
-                .addToBackStack("settings")
-                .commit()
-            currentSearchListener = null
-        }
-    }
-
-    private fun setSelectedButton(selectedButton: MaterialButton) {
-        listOf(myPatientButton, allPatientButton, settingsButton).forEach {
-            it.setTextColor(Color.parseColor(defaultColor))
-            it.iconTint = ColorStateList.valueOf(Color.parseColor(defaultColor))
-        }
-        selectedButton.setTextColor(Color.parseColor(selectedColor))
-        selectedButton.iconTint = ColorStateList.valueOf(Color.parseColor(selectedColor))
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
     }
 
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
+            tabLayout.getTabAt(TAB_MY_PATIENTS)?.select()
         } else {
             super.onBackPressed()
         }
@@ -164,11 +156,31 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        supportFragmentManager.fragments.forEach {
-            if (it is PatientListFragment && it.isAdded) { // Check if fragment is added
-                it.applyFontSettings()
+        // Apply potential font changes to fragments
+        supportFragmentManager.fragments.forEach { fragment ->
+            if (fragment is PatientListFragment && fragment.isAdded) {
+                fragment.applyFontSettings()
             }
         }
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            "theme" -> applySavedTheme()
+            "textSize", "fontStyle" -> {
+                // Refresh currently visible fragment
+                supportFragmentManager.fragments.forEach { fragment ->
+                    if (fragment is PatientListFragment && fragment.isAdded) {
+                        fragment.applyFontSettings()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        prefs.unregisterOnSharedPreferenceChangeListener(this)
     }
 }
 
