@@ -54,5 +54,6 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
         app:tint="@android:color/white"
+        android:backgroundTint="@color/brand_green"
         android:contentDescription="Add patient"/>
 </RelativeLayout>

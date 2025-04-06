@@ -126,6 +126,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
+        android:backgroundTint="@color/brand_green"
         android:contentDescription="Add new journal entry"
         android:src="@drawable/ic_add" />
 
