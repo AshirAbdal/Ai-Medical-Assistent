@@ -4,7 +4,7 @@ import com.example.androidapp_part22.activities.PatientType
 import com.example.androidapp_part22.models.Patient
 import kotlin.math.min
 
-class Dashboard {
+public  final class Dashboard {
     private val currentDoctorId = "doc123"
     private val allPatients = listOf(
         Patient("P1001", "John Doe", 45, "Male", "doc123"),

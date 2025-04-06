@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ReportsFragment : Fragment() {
+ public final class ReportsFragment : Fragment() {
 
     private var patient: Patient? = null
     private lateinit var noReportsView: TextView

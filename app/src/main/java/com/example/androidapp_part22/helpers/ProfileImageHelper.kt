@@ -13,7 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.mikhaellopez.circularimageview.CircularImageView
 
-class ProfileImageHelper(private val activity: Activity) {
+ public final class ProfileImageHelper(private val activity: Activity) {
 
     private val CAMERA_PERMISSION_REQUEST = 100
     private val GALLERY_PERMISSION_REQUEST = 101

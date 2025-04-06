@@ -22,7 +22,7 @@ import com.example.androidapp_part22.activities.SearchListener
 import com.example.androidapp_part22.activities.VoiceActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-abstract class PatientListFragment : Fragment(), SearchListener {
+ public abstract class PatientListFragment : Fragment(), SearchListener {
     protected lateinit var adapter: PatientAdapter
     protected lateinit var dashboardLogic: Dashboard
     protected var currentPage = 1

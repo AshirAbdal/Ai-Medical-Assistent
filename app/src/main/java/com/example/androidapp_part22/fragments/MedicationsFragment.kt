@@ -14,7 +14,7 @@ import com.example.androidapp_part22.models.Patient
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
-class MedicationsFragment : Fragment() {
+ public final class MedicationsFragment : Fragment() {
 
     private var patient: Patient? = null
     private lateinit var noMedicationsText: TextView

@@ -17,7 +17,9 @@ import com.example.androidapp_part22.R
 import com.example.androidapp_part22.fragments.AllPatientsFragment
 import com.example.androidapp_part22.fragments.MyPatientsFragment
 import com.example.androidapp_part22.fragments.PatientListFragment
+import com.example.androidapp_part22.fragments.ScheduleFragment
 import com.example.androidapp_part22.fragments.SettingsFragment
+import com.example.androidapp_part22.fragments.UpcomingAppointmentsFragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -36,7 +38,8 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     // Tab indices
     private val TAB_MY_PATIENTS = 0
     private val TAB_ALL_PATIENTS = 1
-    private val TAB_SETTINGS = 2
+    private val TAB_SCHEDULE = 2  // New Schedule tab
+    private val TAB_SETTINGS = 3  // Moved Settings to tab 4
 
     override fun onCreate(savedInstanceState: Bundle?) {
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
@@ -92,10 +95,19 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     }
 
     private fun loadInitialFragment() {
+        // Load My Patients fragment with Upcoming Appointments above it
+        val myPatientsFragment = MyPatientsFragment()
+
         supportFragmentManager.beginTransaction()
-            .replace(R.id.contentFrame, MyPatientsFragment())
+            .replace(R.id.contentFrame, myPatientsFragment)
             .commit()
-        currentSearchListener = supportFragmentManager.findFragmentById(R.id.contentFrame) as? SearchListener
+
+        // Add upcoming appointments widget at the top of the content frame
+        supportFragmentManager.beginTransaction()
+            .add(R.id.dashboardWidgetsContainer, UpcomingAppointmentsFragment.newInstance())
+            .commit()
+
+        currentSearchListener = myPatientsFragment
     }
 
     private fun initViews() {
@@ -155,12 +167,23 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
                     toggleSearchVisibility(false)
                 }
 
+                // Clear the dashboard widgets container when switching tabs
+                supportFragmentManager.findFragmentById(R.id.dashboardWidgetsContainer)?.let {
+                    supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+
                 when (tab.position) {
                     TAB_MY_PATIENTS -> {
                         val fragment = MyPatientsFragment()
                         supportFragmentManager.beginTransaction()
                             .replace(R.id.contentFrame, fragment)
                             .commitNow()
+
+                        // Add upcoming appointments widget for My Patients tab
+                        supportFragmentManager.beginTransaction()
+                            .add(R.id.dashboardWidgetsContainer, UpcomingAppointmentsFragment.newInstance())
+                            .commit()
+
                         currentSearchListener = fragment
                         toolbarTitle.text = "My Patients"
                     }
@@ -171,6 +194,14 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
                             .commitNow()
                         currentSearchListener = fragment
                         toolbarTitle.text = "All Patients"
+                    }
+                    TAB_SCHEDULE -> {
+                        val fragment = ScheduleFragment.newInstance()
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.contentFrame, fragment)
+                            .commitNow()
+                        currentSearchListener = null
+                        toolbarTitle.text = "Schedule"
                     }
                     TAB_SETTINGS -> {
                         supportFragmentManager.beginTransaction()
