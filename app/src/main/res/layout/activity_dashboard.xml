@@ -57,7 +57,7 @@
                     android:layout_weight="1"
                     android:layout_gravity="center_vertical"
                     android:paddingStart="16dp"
-                    android:text="Dashboard"
+                    android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="18sp" />
 
