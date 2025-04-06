@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.androidapp_part22.fragments.JournalFragment
@@ -23,6 +24,10 @@ class PatientProfileActivity : AppCompatActivity() {
     private lateinit var patientAgeGenderTextView: TextView
     private lateinit var patientIdTextView: TextView
     private lateinit var tabLayout: TabLayout
+    private lateinit var backButton: ImageButton
+    private lateinit var searchPatientButton: ImageButton
+    private lateinit var editPatientButton: ImageButton
+    private lateinit var toolbarTitle: TextView
     private lateinit var patient: Patient
 
     // Tab indices - updated without Upload tab
@@ -46,6 +51,9 @@ class PatientProfileActivity : AppCompatActivity() {
         // Initialize views
         initViews()
 
+        // Setup toolbar actions
+        setupToolbarActions()
+
         // Setup UI with patient data
         setupPatientInfo()
 
@@ -57,11 +65,11 @@ class PatientProfileActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        // Back button setup
-        val backButton = findViewById<ImageButton>(R.id.backButton)
-        backButton.setOnClickListener {
-            finishWithAnimation()
-        }
+        // Toolbar views
+        backButton = findViewById(R.id.backButton)
+        searchPatientButton = findViewById(R.id.searchPatientButton)
+        editPatientButton = findViewById(R.id.editPatientButton)
+        toolbarTitle = findViewById(R.id.toolbarTitle)
 
         // Patient info views
         profileImage = findViewById(R.id.patientProfileImage)
@@ -76,6 +84,46 @@ class PatientProfileActivity : AppCompatActivity() {
 
         // Tab layout
         tabLayout = findViewById(R.id.tabLayout)
+    }
+
+    private fun setupToolbarActions() {
+        // Set the patient name in the toolbar title
+
+
+        // Back button setup
+        backButton.setOnClickListener {
+            finishWithAnimation()
+        }
+
+        // Search button setup
+        searchPatientButton.setOnClickListener {
+            Toast.makeText(this, "Search feature coming soon", Toast.LENGTH_SHORT).show()
+        }
+
+        // Edit button setup
+        editPatientButton.setOnClickListener {
+            showEditOptions()
+        }
+    }
+
+    private fun showEditOptions() {
+        val options = arrayOf("Edit Profile", "Add Note", "Schedule Appointment", "Archive Patient")
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Patient Options")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> Toast.makeText(this, "Edit Profile feature coming soon", Toast.LENGTH_SHORT).show()
+                    1 -> {
+                        // Switch to Journal tab and focus on new entry
+                        tabLayout.getTabAt(TAB_JOURNAL)?.select()
+                        // Would need a method in JournalFragment to focus on new entry input
+                    }
+                    2 -> Toast.makeText(this, "Schedule Appointment feature coming soon", Toast.LENGTH_SHORT).show()
+                    3 -> Toast.makeText(this, "Archive Patient feature coming soon", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .show()
     }
 
     private fun setupPatientInfo() {

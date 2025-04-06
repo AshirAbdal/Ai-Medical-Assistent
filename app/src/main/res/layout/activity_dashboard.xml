@@ -16,13 +16,14 @@
         android:focusableInTouchMode="true"
         android:descendantFocusability="beforeDescendants">
 
-        <!-- Toolbar -->
+        <!-- Modern Toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp">
+            android:background="@color/brand_green"
+            android:elevation="4dp"
+            app:contentInsetStart="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -30,45 +31,98 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
+                <!-- Back Button -->
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_back" />
+
+                <!-- App Logo -->
                 <ImageView
                     android:id="@+id/logoImageView"
-                    android:layout_width="83dp"
+                    android:layout_width="80dp"
                     android:layout_height="36dp"
-                    android:src="@drawable/ethizo_logo"
-                    android:layout_marginEnd="16dp"/>
+                    android:src="@drawable/ethizo_logo" />
 
-                <com.google.android.material.textfield.TextInputLayout
+                <!-- Dashboard Title -->
+                <TextView
+                    android:id="@+id/toolbarTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    app:boxStrokeColor="#4CAF50"
-                    app:hintTextColor="#4CAF50"
-                    android:background="@android:color/transparent">
+                    android:layout_gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:text="Dashboard"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/searchInput"
-                        android:layout_width="match_parent"
+                <!-- Search Container -->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp">
+
+                    <!-- Search Input (Initially Hidden) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/searchLayout"
+                        android:layout_width="240dp"
                         android:layout_height="wrap_content"
-                        android:hint="Search patients..."
-                        android:textColorHint="#4CAF50"
-                        android:textColor="#4CAF50"
-                        android:imeOptions="actionDone"
-                        android:background="@android:color/white"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_gravity="center_vertical"
+                        android:visibility="gone"
+                        app:boxBackgroundColor="@android:color/white"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                        app:boxStrokeColor="#FFFFFF"
+                        app:hintTextColor="#FFFFFF">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/searchInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Search patients..."
+                            android:imeOptions="actionSearch"
+                            android:inputType="text"
+                            android:textColor="#333333"
+                            android:textColorHint="#757575"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Search Icon (Shown by default) -->
+                    <ImageButton
+                        android:id="@+id/searchButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_vertical|end"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Search"
+                        android:src="@drawable/ic_search" />
+                </FrameLayout>
+
+                <!-- Notifications Button -->
+                <ImageButton
+                    android:id="@+id/notificationsButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Notifications"
+                    android:src="@drawable/ic_notifications" />
             </LinearLayout>
         </androidx.appcompat.widget.Toolbar>
 
-        <!-- Menu Tabs - Similar to activity_patient_profile.xml -->
+        <!-- Menu Tabs -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             app:tabGravity="fill"
-            app:tabIndicatorColor="#4CAF50"
+            app:tabIndicatorColor="@color/brand_green"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="#4CAF50"
+            app:tabSelectedTextColor="@color/brand_green"
             app:tabTextColor="@android:color/darker_gray">
 
             <com.google.android.material.tabs.TabItem
@@ -93,7 +147,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#F5F5F5"/>
+            android:background="#F5F5F5" />
     </LinearLayout>
 
     <ProgressBar
@@ -101,6 +155,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

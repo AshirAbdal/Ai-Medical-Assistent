@@ -186,8 +186,6 @@ class HistoryFragment : Fragment() {
         }
     }
 
-
-
     // Adapter for the RecyclerView
     inner class HistoryAdapter(
         private val entries: List<HistoryEntry>,

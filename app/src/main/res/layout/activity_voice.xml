@@ -6,20 +6,22 @@
     android:orientation="vertical"
     android:background="#F5F5F5">
 
-    <!-- Toolbar with back button -->
+    <!-- Modern Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/brand_green"
         android:elevation="4dp"
         app:contentInsetStart="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
+            <!-- Back Button -->
             <ImageButton
                 android:id="@+id/backButton"
                 android:layout_width="48dp"
@@ -29,17 +31,42 @@
                 android:contentDescription="Back"
                 android:src="@drawable/ic_back" />
 
+            <!-- App Logo -->
+            <ImageView
+                android:id="@+id/logoImageView"
+                android:layout_width="80dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ethizo_logo" />
+
+            <!-- Title -->
             <TextView
+                android:id="@+id/toolbarTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:layout_gravity="center_vertical"
                 android:paddingStart="16dp"
                 android:text="Voice to Text"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textSize="18sp" />
 
+            <!-- Share Button -->
+            <ImageButton
+                android:id="@+id/shareButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Share"
+                android:src="@drawable/ic_share" />
+
+            <!-- Menu Button -->
+            <ImageButton
+                android:id="@+id/menuButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="More options"
+                android:src="@drawable/ic_more" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
@@ -50,9 +77,9 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         app:tabGravity="fill"
-        app:tabIndicatorColor="#4CAF50"
+        app:tabIndicatorColor="@color/brand_green"
         app:tabMode="fixed"
-        app:tabSelectedTextColor="#4CAF50"
+        app:tabSelectedTextColor="@color/brand_green"
         app:tabTextColor="@android:color/darker_gray">
 
         <com.google.android.material.tabs.TabItem

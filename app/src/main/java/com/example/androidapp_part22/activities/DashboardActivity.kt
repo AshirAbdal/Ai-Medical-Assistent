@@ -2,31 +2,36 @@ package com.example.androidapp_part22.activities
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.Rect
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.MotionEvent
+import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageButton
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.example.androidapp_part22.R
 import com.example.androidapp_part22.fragments.AllPatientsFragment
 import com.example.androidapp_part22.fragments.MyPatientsFragment
 import com.example.androidapp_part22.fragments.PatientListFragment
-import com.example.androidapp_part22.R
 import com.example.androidapp_part22.fragments.SettingsFragment
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var searchInput: TextInputEditText
+    private lateinit var searchLayout: TextInputLayout
+    private lateinit var searchButton: ImageButton
+    private lateinit var notificationsButton: ImageButton
+    private lateinit var toolbarTitle: TextView
     private lateinit var tabLayout: TabLayout
     private lateinit var prefs: SharedPreferences
     private var currentSearchListener: SearchListener? = null
+    private var isSearchVisible = false
 
     // Tab indices
     private val TAB_MY_PATIENTS = 0
@@ -57,20 +62,16 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     }
 
     private fun handleTouchOutsideSearch(event: MotionEvent) {
-        if (event.action == MotionEvent.ACTION_DOWN) {
+        if (event.action == MotionEvent.ACTION_DOWN && isSearchVisible) {
             val searchInput = findViewById<TextInputEditText>(R.id.searchInput)
-            val rect = Rect().apply { searchInput.getGlobalVisibleRect(this) }
+            val rect = android.graphics.Rect().apply { searchInput.getGlobalVisibleRect(this) }
 
             // Convert touch coordinates correctly
             val touchX = event.rawX.toInt()
             val touchY = event.rawY.toInt()
 
             if (!rect.contains(touchX, touchY)) {
-                searchInput.clearFocus()
-                hideKeyboard()
-
-                // Clear focus from all views
-                window.decorView.clearFocus()
+                toggleSearchVisibility(false)
             }
         }
     }
@@ -98,23 +99,62 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     }
 
     private fun initViews() {
+        searchButton = findViewById(R.id.searchButton)
+        searchLayout = findViewById(R.id.searchLayout)
         searchInput = findViewById(R.id.searchInput)
+        notificationsButton = findViewById(R.id.notificationsButton)
+        toolbarTitle = findViewById(R.id.toolbarTitle)
         tabLayout = findViewById(R.id.tabLayout)
+
+        // Set click listeners for the toolbar buttons
+        searchButton.setOnClickListener {
+            toggleSearchVisibility(!isSearchVisible)
+        }
+
+        notificationsButton.setOnClickListener {
+            Toast.makeText(this, "Notifications feature coming soon", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun toggleSearchVisibility(show: Boolean) {
+        isSearchVisible = show
+
+        if (show) {
+            searchLayout.visibility = View.VISIBLE
+            searchButton.visibility = View.GONE
+            toolbarTitle.visibility = View.GONE  // Hide title when search is visible
+            searchInput.requestFocus()
+
+            // Show keyboard
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(searchInput, InputMethodManager.SHOW_IMPLICIT)
+        } else {
+            searchLayout.visibility = View.GONE
+            searchButton.visibility = View.VISIBLE
+            toolbarTitle.visibility = View.VISIBLE  // Show title when search is hidden
+            searchInput.text?.clear()
+            hideKeyboard()
+
+            // Clear search results
+            currentSearchListener?.onSearch("")
+        }
     }
 
     private fun setupSearchView() {
-        searchInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                currentSearchListener?.onSearch(s?.toString()?.trim() ?: "")
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
+        searchInput.setOnEditorActionListener { textView, _, _ ->
+            currentSearchListener?.onSearch(textView.text.toString().trim())
+            true
+        }
     }
 
     private fun setupTabLayout() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
+                // Hide search when changing tabs
+                if (isSearchVisible) {
+                    toggleSearchVisibility(false)
+                }
+
                 when (tab.position) {
                     TAB_MY_PATIENTS -> {
                         val fragment = MyPatientsFragment()
@@ -122,6 +162,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
                             .replace(R.id.contentFrame, fragment)
                             .commitNow()
                         currentSearchListener = fragment
+                        toolbarTitle.text = "My Patients"
                     }
                     TAB_ALL_PATIENTS -> {
                         val fragment = AllPatientsFragment()
@@ -129,6 +170,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
                             .replace(R.id.contentFrame, fragment)
                             .commitNow()
                         currentSearchListener = fragment
+                        toolbarTitle.text = "All Patients"
                     }
                     TAB_SETTINGS -> {
                         supportFragmentManager.beginTransaction()
@@ -136,6 +178,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
                             .addToBackStack("settings")
                             .commit()
                         currentSearchListener = null
+                        toolbarTitle.text = "Settings"
                     }
                 }
             }
@@ -146,6 +189,11 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     }
 
     override fun onBackPressed() {
+        if (isSearchVisible) {
+            toggleSearchVisibility(false)
+            return
+        }
+
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
             tabLayout.getTabAt(TAB_MY_PATIENTS)?.select()
@@ -184,10 +232,12 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     }
 }
 
+// Define PatientType enum
 enum class PatientType {
     MY_PATIENTS, ALL_PATIENTS
 }
 
+// Define SearchListener interface
 interface SearchListener {
     fun onSearch(query: String)
 }

@@ -5,20 +5,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Toolbar with back button -->
+    <!-- Modern Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/brand_green"
         android:elevation="4dp"
         app:contentInsetStart="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
+            <!-- Back Button -->
             <ImageButton
                 android:id="@+id/backButton"
                 android:layout_width="48dp"
@@ -28,17 +30,42 @@
                 android:contentDescription="Back"
                 android:src="@drawable/ic_back" />
 
+            <!-- App Logo -->
+            <ImageView
+                android:id="@+id/logoImageView"
+                android:layout_width="80dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ethizo_logo" />
+
+            <!-- Title -->
             <TextView
+                android:id="@+id/toolbarTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:layout_gravity="center_vertical"
                 android:paddingStart="16dp"
                 android:text="Patient Profile"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textSize="18sp" />
 
+            <!-- Search Button -->
+            <ImageButton
+                android:id="@+id/searchPatientButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Search"
+                android:src="@drawable/ic_search" />
+
+            <!-- Edit Button -->
+            <ImageButton
+                android:id="@+id/editPatientButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit patient"
+                android:src="@drawable/ic_edit" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
@@ -61,7 +88,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_profile_placeholder"
-                app:civ_border_color="#3F51B5"
+                app:civ_border_color="@color/brand_green"
                 app:civ_border_width="2dp" />
 
             <LinearLayout
@@ -91,21 +118,20 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="ID: P1001" />
-
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Menu Tabs - Updated without Upload tab -->
+    <!-- Menu Tabs -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         app:tabGravity="fill"
-        app:tabIndicatorColor="@color/design_default_color_primary"
+        app:tabIndicatorColor="@color/brand_green"
         app:tabMode="fixed"
-        app:tabSelectedTextColor="@color/design_default_color_primary"
+        app:tabSelectedTextColor="@color/brand_green"
         app:tabTextColor="@android:color/darker_gray">
 
         <com.google.android.material.tabs.TabItem
@@ -129,5 +155,4 @@
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 </LinearLayout>

@@ -55,7 +55,6 @@ class SpeechToTextFragment : Fragment() {
 
     companion object {
         private const val API_ENDPOINT = "https://voicetotext.free.beeceptor.com"
-        private const val API_HISTORY_PATH = "/"
         private const val PREFS_NAME = "VoiceToTextPrefs"
         private const val KEY_SAVED_TEXT = "saved_text"
         private const val TAG = "SpeechToTextFragment"
@@ -76,6 +75,28 @@ class SpeechToTextFragment : Fragment() {
         prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
     }
 
+    // These methods should be added to the SpeechToTextFragment class
+// to support the features used in the updated VoiceActivity
+
+    fun SpeechToTextFragment.getCurrentText(): String {
+        // Get the current text from the EditText
+        return voiceInput.text.toString()
+    }
+
+    fun SpeechToTextFragment.clearText() {
+        // Clear the text in the EditText
+        voiceInput.text.clear()
+        saveTextToPreferences() // Clear saved text
+        Toast.makeText(requireContext(), "Text cleared", Toast.LENGTH_SHORT).show()
+    }
+
+    fun SpeechToTextFragment.setTextFromHistory(text: String) {
+        // Set text from a history entry
+        voiceInput.setText(text)
+        voiceInput.setSelection(text.length) // Move cursor to end
+        saveTextToPreferences()
+        Toast.makeText(requireContext(), "Text loaded from history", Toast.LENGTH_SHORT).show()
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

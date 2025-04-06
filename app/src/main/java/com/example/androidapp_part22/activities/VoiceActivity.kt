@@ -3,7 +3,9 @@ package com.example.androidapp_part22.activities
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -16,11 +18,13 @@ import com.example.androidapp_part22.fragments.SettingsFragment
 import com.example.androidapp_part22.fragments.SpeechToTextFragment
 import com.google.android.material.tabs.TabLayout
 
-
 class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private lateinit var backButton: ImageButton
-    lateinit var tabLayout: TabLayout  // Changed to public for fragment access
+    private lateinit var shareButton: ImageButton
+    private lateinit var menuButton: ImageButton
+    private lateinit var toolbarTitle: TextView
+    lateinit var tabLayout: TabLayout
     private var speechToTextFragment: SpeechToTextFragment? = null
     private lateinit var prefs: SharedPreferences
 
@@ -47,8 +51,8 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
         // Initialize views
         initializeViews()
 
-        // Setup back button
-        setupBackButton()
+        // Setup toolbar actions
+        setupToolbarActions()
 
         // Setup tab layout
         setupTabLayout()
@@ -59,13 +63,84 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
 
     private fun initializeViews() {
         backButton = findViewById(R.id.backButton)
+        shareButton = findViewById(R.id.shareButton)
+        menuButton = findViewById(R.id.menuButton)
+        toolbarTitle = findViewById(R.id.toolbarTitle)
         tabLayout = findViewById(R.id.tabLayout)
     }
 
-    private fun setupBackButton() {
+    private fun setupToolbarActions() {
+        // Setup back button
         backButton.setOnClickListener {
             showExitConfirmationDialog()
         }
+
+        // Setup share button
+        shareButton.setOnClickListener {
+            shareVoiceText()
+        }
+
+        // Setup menu button
+        menuButton.setOnClickListener {
+            showOptionsMenu()
+        }
+    }
+
+    private fun shareVoiceText() {
+        // Get the current text from the Speech to Text fragment if it's the active fragment
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.contentFrame)
+
+        if (currentFragment is SpeechToTextFragment) {
+            // Get the voiceInput EditText directly from the fragment
+            val voiceInputEditText = currentFragment.view?.findViewById<EditText>(R.id.voiceInput)
+            val speechText = voiceInputEditText?.text?.toString() ?: ""
+
+            if (speechText.isNotEmpty()) {
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, speechText)
+                    type = "text/plain"
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share via"))
+            } else {
+                Toast.makeText(this, "No text to share", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Go to Text tab to share content", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showOptionsMenu() {
+        val options = arrayOf("Help", "Rate App", "About", "Clear All")
+
+        AlertDialog.Builder(this)
+            .setTitle("Options")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
+                    1 -> Toast.makeText(this, "Rate App feature coming soon", Toast.LENGTH_SHORT).show()
+                    2 -> showAboutDialog()
+                    3 -> {
+                        // Clear all text if in the speech-to-text tab
+                        val currentFragment = supportFragmentManager.findFragmentById(R.id.contentFrame)
+                        if (currentFragment is SpeechToTextFragment) {
+                            // Access EditText directly and clear it
+                            val voiceInputEditText = currentFragment.view?.findViewById<EditText>(R.id.voiceInput)
+                            voiceInputEditText?.text?.clear()
+                            Toast.makeText(this, "Text cleared", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun showAboutDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("About Voice to Text")
+            .setMessage("Version 1.0\n\nThis feature allows you to convert speech to text and save your transcriptions.")
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun showExitConfirmationDialog() {
@@ -191,6 +266,4 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
         super.onDestroy()
         prefs.unregisterOnSharedPreferenceChangeListener(this)
     }
-
-
 }
