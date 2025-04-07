@@ -27,7 +27,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
+public final class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var searchInput: TextInputEditText
     private lateinit var searchLayout: TextInputLayout
     private lateinit var searchButton: ImageButton
@@ -154,6 +154,12 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     }
 
     private fun navigateToSettings() {
+        // Hide widgets container when showing settings
+        findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.GONE
+
+        // Hide tab layout when showing settings
+        tabLayout.visibility = View.GONE
+
         // Load the settings fragment
         supportFragmentManager.beginTransaction()
             .replace(R.id.contentFrame, SettingsFragment())
@@ -218,6 +224,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         }
     }
 
+    // Ensure your setupTabLayout method in DashboardActivity.kt properly refreshes fragments
     private fun setupTabLayout() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
@@ -246,22 +253,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
                         currentSearchListener = fragment
                         toolbarTitle.text = "My Patients"
                     }
-                    TAB_ALL_PATIENTS -> {
-                        val fragment = AllPatientsFragment()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.contentFrame, fragment)
-                            .commitNow()
-                        currentSearchListener = fragment
-                        toolbarTitle.text = "All Patients"
-                    }
-                    TAB_SCHEDULE -> {
-                        val fragment = ScheduleFragment.newInstance()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.contentFrame, fragment)
-                            .commitNow()
-                        currentSearchListener = null
-                        toolbarTitle.text = "Schedule"
-                    }
+                    // Other tab selections...
                 }
             }
 
@@ -270,6 +262,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         })
     }
 
+
     override fun onBackPressed() {
         if (isSearchVisible) {
             toggleSearchVisibility(false)
@@ -277,30 +270,54 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         }
 
         if (supportFragmentManager.backStackEntryCount > 0) {
+            // Pop the back stack
             supportFragmentManager.popBackStack()
-            // Update title when returning from settings
+
+            // If we were in settings (checking by title)
             if (toolbarTitle.text == "Settings") {
-                when (tabLayout.selectedTabPosition) {
-                    TAB_MY_PATIENTS -> toolbarTitle.text = "My Patients"
-                    TAB_ALL_PATIENTS -> toolbarTitle.text = "All Patients"
-                    TAB_SCHEDULE -> toolbarTitle.text = "Schedule"
-                }
+                // Restore UI elements
+                findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.VISIBLE
+                tabLayout.visibility = View.VISIBLE
+
+                // Force a fresh tab selection to reload everything
+                val currentTab = tabLayout.selectedTabPosition
+                tabLayout.getTabAt(currentTab)?.select()
             }
         } else {
             super.onBackPressed()
         }
     }
 
+
+    // Add this to DashboardActivity.kt after onCreate method
     override fun onResume() {
         super.onResume()
+
         // Apply potential font changes to fragments
         supportFragmentManager.fragments.forEach { fragment ->
             if (fragment is PatientListFragment && fragment.isAdded) {
                 fragment.applyFontSettings()
             }
         }
-    }
 
+        // Set up a fragment manager listener to detect when settings fragment is removed
+        supportFragmentManager.addOnBackStackChangedListener {
+            if (supportFragmentManager.backStackEntryCount == 0 &&
+                toolbarTitle.text == "Settings") {
+
+                // Restore UI when returning from settings
+                findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.VISIBLE
+                tabLayout.visibility = View.VISIBLE
+
+                // Update title based on selected tab
+                when (tabLayout.selectedTabPosition) {
+                    TAB_MY_PATIENTS -> toolbarTitle.text = "My Patients"
+                    TAB_ALL_PATIENTS -> toolbarTitle.text = "All Patients"
+                    TAB_SCHEDULE -> toolbarTitle.text = "Schedule"
+                }
+            }
+        }
+    }
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             "theme" -> applySavedTheme()

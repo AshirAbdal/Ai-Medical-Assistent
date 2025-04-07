@@ -14,7 +14,7 @@ import android.widget.TextView
 import com.example.androidapp_part22.models.Patient
 import com.example.androidapp_part22.R
 
-class PatientAdapter(
+public final class PatientAdapter(
     private val context: Context,
     private var patients: MutableList<Patient>,
     private val onPatientClicked: (Patient) -> Unit

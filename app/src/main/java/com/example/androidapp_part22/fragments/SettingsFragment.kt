@@ -109,11 +109,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         view.findViewById<Button>(R.id.saveButton).setOnClickListener {
             if (validateInputs()) {
                 savePreferences()
-                // Don't recreate the activity, just notify about changes
+
+                // Notify about changes
                 Toast.makeText(requireContext(), "Settings saved", Toast.LENGTH_SHORT).show()
 
-                // Navigate back programmatically after saving
-                parentFragmentManager.popBackStack()
+                // Just pop the back stack
+                activity?.onBackPressed()
             } else {
                 Toast.makeText(requireContext(), "Invalid input", Toast.LENGTH_SHORT).show()
             }

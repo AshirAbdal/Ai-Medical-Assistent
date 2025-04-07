@@ -96,6 +96,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
         currentPage++
     }
 
+     // Add this method to PatientListFragment.kt
+     fun refreshPatientList() {
+         currentPage = 1
+         hasMoreData = true
+         adapter.clearPatients()
+         loadInitialData()
+     }
+
     private fun loadMoreData() {
         isLoading = true
         view?.findViewById<ProgressBar>(R.id.progressBar)?.visibility = View.VISIBLE
@@ -139,10 +147,5 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
         }
     }
 
-    fun refreshPatientList() {
-        currentPage = 1
-        hasMoreData = true
-        adapter.clearPatients()
-        loadInitialData()
-    }
+
 }
