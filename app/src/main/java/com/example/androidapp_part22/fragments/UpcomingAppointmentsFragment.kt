@@ -54,8 +54,8 @@ class UpcomingAppointmentsFragment : Fragment() {
         // Setup RecyclerView
         setupAppointmentsRecyclerView()
 
-        // Load upcoming appointments
-        loadUpcomingAppointments()
+        // Load upcoming appointments - limit to just 2
+        loadUpcomingAppointments(2)
 
         // Setup view all appointments click listener
         view.findViewById<TextView>(R.id.viewAllAppointmentsText).setOnClickListener {
@@ -77,8 +77,8 @@ class UpcomingAppointmentsFragment : Fragment() {
         appointmentsRecyclerView.adapter = adapter
     }
 
-    private fun loadUpcomingAppointments() {
-        val appointments = scheduleManager.getUpcomingAppointments(limit = 3)
+    private fun loadUpcomingAppointments(limit: Int = 2) {
+        val appointments = scheduleManager.getUpcomingAppointments(limit)
 
         if (appointments.isEmpty()) {
             emptyStateText.visibility = View.VISIBLE
@@ -130,7 +130,7 @@ class UpcomingAppointmentsFragment : Fragment() {
     private fun markAsCompleted(appointment: Appointment) {
         val updatedAppointment = appointment.copy(status = com.example.androidapp_part22.models.AppointmentStatus.COMPLETED)
         scheduleManager.updateAppointment(updatedAppointment)
-        loadUpcomingAppointments()
+        loadUpcomingAppointments(2)
         showToast("Appointment marked as completed")
     }
 
@@ -141,7 +141,7 @@ class UpcomingAppointmentsFragment : Fragment() {
             .setPositiveButton("Yes") { _, _ ->
                 val updatedAppointment = appointment.copy(status = com.example.androidapp_part22.models.AppointmentStatus.CANCELLED)
                 scheduleManager.updateAppointment(updatedAppointment)
-                loadUpcomingAppointments()
+                loadUpcomingAppointments(2)
                 showToast("Appointment cancelled")
             }
             .setNegativeButton("No", null)
@@ -173,6 +173,6 @@ class UpcomingAppointmentsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // Refresh appointments whenever fragment becomes visible
-        loadUpcomingAppointments()
+        loadUpcomingAppointments(2)
     }
 }
