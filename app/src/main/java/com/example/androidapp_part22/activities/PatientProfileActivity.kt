@@ -45,7 +45,6 @@ class PatientProfileActivity : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var menuButton: ImageButton
     private lateinit var searchPatientButton: ImageButton
-    private lateinit var editPatientButton: ImageButton
     private lateinit var toolbarTitle: TextView
     private lateinit var patient: Patient
     private lateinit var scheduleManager: ScheduleManager
@@ -89,9 +88,9 @@ class PatientProfileActivity : AppCompatActivity() {
         // Toolbar views
         backButton = findViewById(R.id.backButton)
         searchPatientButton = findViewById(R.id.searchPatientButton)
-        editPatientButton = findViewById(R.id.editPatientButton)
         menuButton = findViewById(R.id.menuButton)
         toolbarTitle = findViewById(R.id.toolbarTitle)
+        findViewById<ImageButton>(R.id.editPatientButton)
 
         // Patient info views
         profileImage = findViewById(R.id.patientProfileImage)
@@ -109,6 +108,9 @@ class PatientProfileActivity : AppCompatActivity() {
     }
 
     private fun setupToolbarActions() {
+        // Find the TextView in the toolbar
+        toolbarTitle = findViewById(R.id.toolbarTitle)
+
         // Set the patient name in the toolbar title
         toolbarTitle.text = "Patient Profile"
 
@@ -122,8 +124,8 @@ class PatientProfileActivity : AppCompatActivity() {
             Toast.makeText(this, "Search feature coming soon", Toast.LENGTH_SHORT).show()
         }
 
-        // Edit button setup
-        editPatientButton.setOnClickListener {
+        // Edit patient button setup
+        findViewById<ImageButton>(R.id.editPatientButton).setOnClickListener {
             showEditPatientOptions()
         }
 

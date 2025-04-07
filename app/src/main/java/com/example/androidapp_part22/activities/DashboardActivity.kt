@@ -118,7 +118,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         searchLayout = findViewById(R.id.searchLayout)
         searchInput = findViewById(R.id.searchInput)
         notificationsButton = findViewById(R.id.notificationsButton)
-        menuButton = findViewById(R.id.menuButton)
+        menuButton = findViewById(R.id.menuButton) // Fixed: Using the correct ID for the menu button
         toolbarTitle = findViewById(R.id.toolbarTitle)
         tabLayout = findViewById(R.id.tabLayout)
 
@@ -132,7 +132,6 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         }
 
         // Set up 3-dot menu button
-        menuButton = findViewById(R.id.notificationsButton)
         menuButton.setOnClickListener {
             showOptionsMenu()
         }
