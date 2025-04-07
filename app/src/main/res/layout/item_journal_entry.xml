@@ -67,6 +67,15 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_mic_journal"
                 android:contentDescription="Voice input"/>
+
+            <ImageButton
+                android:id="@+id/walletEntryButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_wallet"
+                android:contentDescription="Add financial note"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -163,6 +163,7 @@ class JournalFragment : Fragment() {
         val contentText = entryView.findViewById<TextView>(R.id.entryContentText)
         val editButton = entryView.findViewById<ImageButton>(R.id.editEntryButton)
         val micButton = entryView.findViewById<ImageButton>(R.id.micEntryButton)
+        val walletButton = entryView.findViewById<ImageButton>(R.id.walletEntryButton)
         val editText = entryView.findViewById<EditText>(R.id.entryEditText)
 
         dateText.text = "Date: ${entry.date}"
@@ -194,8 +195,40 @@ class JournalFragment : Fragment() {
             Snackbar.make(requireView(), "Voice input feature coming soon", Snackbar.LENGTH_SHORT).show()
         }
 
+        walletButton.setOnClickListener {
+            showFinancialNoteDialog(entry)
+        }
+
         return entryView
     }
+
+
+    private fun showFinancialNoteDialog(entry: JournalEntry) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setTitle("Financial Note")
+
+        // Create a custom layout for the dialog
+        val dialogView = layoutInflater.inflate(R.layout.dialog_financial_note, null)
+        dialogBuilder.setView(dialogView)
+
+        // You can add more functionality here, such as:
+        // - Adding expense tracking
+        // - Noting financial decisions
+        // - Tracking medical expenses
+
+        dialogBuilder.setPositiveButton("Save") { dialog, _ ->
+            // Add logic to save financial note
+            Snackbar.make(requireView(), "Financial note feature coming soon", Snackbar.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        dialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        dialogBuilder.create().show()
+    }
+
 
     private fun saveNewEntry() {
         val newEntryContent = newEntryEdit.text.toString().trim()
