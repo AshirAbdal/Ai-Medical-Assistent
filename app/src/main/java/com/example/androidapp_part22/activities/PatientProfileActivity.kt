@@ -90,7 +90,6 @@ class PatientProfileActivity : AppCompatActivity() {
         searchPatientButton = findViewById(R.id.searchPatientButton)
         menuButton = findViewById(R.id.menuButton)
         toolbarTitle = findViewById(R.id.toolbarTitle)
-        findViewById<ImageButton>(R.id.editPatientButton)
 
         // Patient info views
         profileImage = findViewById(R.id.patientProfileImage)
@@ -122,11 +121,6 @@ class PatientProfileActivity : AppCompatActivity() {
         // Search button setup
         searchPatientButton.setOnClickListener {
             Toast.makeText(this, "Search feature coming soon", Toast.LENGTH_SHORT).show()
-        }
-
-        // Edit patient button setup
-        findViewById<ImageButton>(R.id.editPatientButton).setOnClickListener {
-            showEditPatientOptions()
         }
 
         // Menu button setup (3-dot menu)
