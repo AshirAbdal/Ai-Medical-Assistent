@@ -66,6 +66,15 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Edit patient"
                 android:src="@drawable/ic_edit" />
+
+            <!-- Menu Button (3-dot menu) -->
+            <ImageButton
+                android:id="@+id/menuButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="More options"
+                android:src="@drawable/ic_more" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 

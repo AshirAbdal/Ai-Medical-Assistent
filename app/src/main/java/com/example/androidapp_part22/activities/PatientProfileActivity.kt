@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import com.example.androidapp_part22.fragments.JournalFragment
 import com.example.androidapp_part22.fragments.MedicationsFragment
 import com.example.androidapp_part22.fragments.ReportsFragment
+import com.example.androidapp_part22.fragments.SettingsFragment
 import com.example.androidapp_part22.helpers.ProfileImageHelper
 import com.example.androidapp_part22.logic.ScheduleManager
 import com.example.androidapp_part22.models.Appointment
@@ -42,13 +43,14 @@ class PatientProfileActivity : AppCompatActivity() {
     private lateinit var patientIdTextView: TextView
     private lateinit var tabLayout: TabLayout
     private lateinit var backButton: ImageButton
+    private lateinit var menuButton: ImageButton
     private lateinit var searchPatientButton: ImageButton
     private lateinit var editPatientButton: ImageButton
     private lateinit var toolbarTitle: TextView
     private lateinit var patient: Patient
     private lateinit var scheduleManager: ScheduleManager
 
-    // Tab indices - updated without Upload tab
+    // Tab indices
     private val TAB_JOURNAL = 0
     private val TAB_REPORTS = 1
     private val TAB_MEDICATIONS = 2
@@ -79,7 +81,7 @@ class PatientProfileActivity : AppCompatActivity() {
         // Setup tabs
         setupTabLayout()
 
-        // Load the default fragment (Journal now that Upload is removed)
+        // Load the default fragment (Journal)
         loadFragment(JournalFragment.newInstance(patient))
     }
 
@@ -88,6 +90,7 @@ class PatientProfileActivity : AppCompatActivity() {
         backButton = findViewById(R.id.backButton)
         searchPatientButton = findViewById(R.id.searchPatientButton)
         editPatientButton = findViewById(R.id.editPatientButton)
+        menuButton = findViewById(R.id.menuButton)
         toolbarTitle = findViewById(R.id.toolbarTitle)
 
         // Patient info views
@@ -96,7 +99,7 @@ class PatientProfileActivity : AppCompatActivity() {
         patientAgeGenderTextView = findViewById(R.id.patientAgeGenderTextView)
         patientIdTextView = findViewById(R.id.patientIdTextView)
 
-        // Profile picture setup - still leaving this for patient profile picture
+        // Profile picture setup
         profileImage.setOnClickListener {
             profileImageHelper.showImageSourceDialog()
         }
@@ -121,25 +124,60 @@ class PatientProfileActivity : AppCompatActivity() {
 
         // Edit button setup
         editPatientButton.setOnClickListener {
-            showEditOptions()
+            showEditPatientOptions()
+        }
+
+        // Menu button setup (3-dot menu)
+        menuButton.setOnClickListener {
+            showOptionsMenu()
         }
     }
 
-    private fun showEditOptions() {
-        val options = arrayOf("Edit Profile", "Add Note", "Schedule Appointment", "Archive Patient")
+    private fun showOptionsMenu() {
+        val options = arrayOf("Settings", "Add Note", "Schedule Appointment", "Print Patient Summary", "Export Data")
 
         AlertDialog.Builder(this)
-            .setTitle("Patient Options")
+            .setTitle("Options")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> Toast.makeText(this, "Edit Profile feature coming soon", Toast.LENGTH_SHORT).show()
+                    0 -> showSettingsFragment()
                     1 -> {
                         // Switch to Journal tab and focus on new entry
                         tabLayout.getTabAt(TAB_JOURNAL)?.select()
                         // Would need a method in JournalFragment to focus on new entry input
                     }
                     2 -> showScheduleAppointmentDialog()
-                    3 -> Toast.makeText(this, "Archive Patient feature coming soon", Toast.LENGTH_SHORT).show()
+                    3 -> Toast.makeText(this, "Print feature coming soon", Toast.LENGTH_SHORT).show()
+                    4 -> Toast.makeText(this, "Export feature coming soon", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .show()
+    }
+
+    private fun showSettingsFragment() {
+        // Load the settings fragment
+        val settingsFragment = SettingsFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, settingsFragment)
+            .addToBackStack("settings")
+            .commit()
+
+        // Hide the tab layout when showing settings
+        tabLayout.visibility = View.GONE
+
+        // Update the toolbar title
+        toolbarTitle.text = "Settings"
+    }
+
+    private fun showEditPatientOptions() {
+        val options = arrayOf("Edit Profile", "Archive Patient")
+
+        AlertDialog.Builder(this)
+            .setTitle("Edit Patient")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> Toast.makeText(this, "Edit Profile feature coming soon", Toast.LENGTH_SHORT).show()
+                    1 -> Toast.makeText(this, "Archive Patient feature coming soon", Toast.LENGTH_SHORT).show()
                 }
             }
             .show()
@@ -155,7 +193,7 @@ class PatientProfileActivity : AppCompatActivity() {
         // Clear existing tabs if any
         tabLayout.removeAllTabs()
 
-        // Add tabs - without Upload tab
+        // Add tabs
         tabLayout.addTab(tabLayout.newTab().setText("Journal"))
         tabLayout.addTab(tabLayout.newTab().setText("Reports"))
         tabLayout.addTab(tabLayout.newTab().setText("Medications"))
@@ -181,7 +219,7 @@ class PatientProfileActivity : AppCompatActivity() {
             .commit()
     }
 
-    // New method to handle scheduling appointments for this specific patient
+    // Appointment scheduling dialog
     private fun showScheduleAppointmentDialog() {
         val dialogView = LayoutInflater.from(this)
             .inflate(R.layout.dialog_create_appointment, null)
@@ -374,13 +412,23 @@ class PatientProfileActivity : AppCompatActivity() {
         profileImageHelper.handleActivityResult(requestCode, resultCode, data, profileImage)
     }
 
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+
+            // Show tabs again if returning from settings
+            if (tabLayout.visibility == View.GONE) {
+                tabLayout.visibility = View.VISIBLE
+                toolbarTitle.text = "Patient Profile"
+            }
+        } else {
+            super.onBackPressed()
+            finishWithAnimation()
+        }
+    }
+
     private fun finishWithAnimation() {
         finish()
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        finishWithAnimation()
     }
 }

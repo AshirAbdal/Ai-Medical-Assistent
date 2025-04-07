@@ -30,8 +30,7 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
 
     // Tab indices
     private val TAB_TEXT = 0
-    private val TAB_SETTINGS = 1
-    private val TAB_HISTORY = 2
+    private val TAB_HISTORY = 1
 
     companion object {
         private const val API_ENDPOINT = "https://voicetotext.free.beeceptor.com"
@@ -111,16 +110,17 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
     }
 
     private fun showOptionsMenu() {
-        val options = arrayOf("Help", "Rate App", "About", "Clear All")
+        val options = arrayOf("Settings", "Help", "Rate App", "About", "Clear All")
 
         AlertDialog.Builder(this)
             .setTitle("Options")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
-                    1 -> Toast.makeText(this, "Rate App feature coming soon", Toast.LENGTH_SHORT).show()
-                    2 -> showAboutDialog()
-                    3 -> {
+                    0 -> showSettingsFragment()
+                    1 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
+                    2 -> Toast.makeText(this, "Rate App feature coming soon", Toast.LENGTH_SHORT).show()
+                    3 -> showAboutDialog()
+                    4 -> {
                         // Clear all text if in the speech-to-text tab
                         val currentFragment = supportFragmentManager.findFragmentById(R.id.contentFrame)
                         if (currentFragment is SpeechToTextFragment) {
@@ -135,6 +135,14 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
             .show()
     }
 
+    private fun showSettingsFragment() {
+        // Load the settings fragment
+        loadFragment(SettingsFragment(), true)
+
+        // Hide the tabs when in settings
+        tabLayout.visibility = android.view.View.GONE
+    }
+
     private fun showAboutDialog() {
         AlertDialog.Builder(this)
             .setTitle("About Voice to Text")
@@ -147,6 +155,7 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
         // If we have fragments in backstack, just pop the backstack
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
+            tabLayout.visibility = android.view.View.VISIBLE
             tabLayout.getTabAt(TAB_TEXT)?.select()
             return
         }
@@ -176,14 +185,18 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
     }
 
     private fun setupTabLayout() {
+        // Clear existing tabs
+        tabLayout.removeAllTabs()
+
+        // Add only Text and History tabs (removing Settings tab)
+        tabLayout.addTab(tabLayout.newTab().setText("Text"))
+        tabLayout.addTab(tabLayout.newTab().setText("History"))
+
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
                     TAB_TEXT -> {
                         loadSpeechToTextFragment()
-                    }
-                    TAB_SETTINGS -> {
-                        loadSettingsFragment()
                     }
                     TAB_HISTORY -> {
                         loadHistoryFragment()
@@ -223,11 +236,6 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
         }
     }
 
-    private fun loadSettingsFragment() {
-        val settingsFragment = SettingsFragment()
-        loadFragment(settingsFragment, true)
-    }
-
     private fun loadHistoryFragment() {
         val historyFragment = HistoryFragment.newInstance()
         loadFragment(historyFragment)
@@ -236,6 +244,9 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
+
+            // Restore tab layout visibility when returning from settings
+            tabLayout.visibility = android.view.View.VISIBLE
             tabLayout.getTabAt(TAB_TEXT)?.select()
         } else {
             super.onBackPressed() // Call the superclass method
@@ -266,4 +277,6 @@ class VoiceActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
         super.onDestroy()
         prefs.unregisterOnSharedPreferenceChangeListener(this)
     }
+
 }
+

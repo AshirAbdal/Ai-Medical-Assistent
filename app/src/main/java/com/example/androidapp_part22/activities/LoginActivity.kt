@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat
 import com.example.androidapp_part22.R
 import com.google.android.material.textfield.TextInputEditText
 
-class LoginActivity : AppCompatActivity() {
+ public final class LoginActivity : AppCompatActivity() {
 
     // Default credentials for testing
     private val DEFAULT_USERNAME = "testUser"

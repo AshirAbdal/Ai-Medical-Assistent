@@ -59,7 +59,7 @@
                 android:contentDescription="Share"
                 android:src="@drawable/ic_share" />
 
-            <!-- Menu Button -->
+            <!-- Menu Button (3-dot menu) -->
             <ImageButton
                 android:id="@+id/menuButton"
                 android:layout_width="48dp"
@@ -70,7 +70,7 @@
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Menu Tabs -->
+    <!-- Menu Tabs - Only Text and History tabs -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
@@ -86,11 +86,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Text" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Settings" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"

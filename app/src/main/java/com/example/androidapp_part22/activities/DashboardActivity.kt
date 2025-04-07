@@ -1,6 +1,7 @@
 package com.example.androidapp_part22.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -10,9 +11,11 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
 import com.example.androidapp_part22.R
 import com.example.androidapp_part22.fragments.AllPatientsFragment
 import com.example.androidapp_part22.fragments.MyPatientsFragment
@@ -29,17 +32,17 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
     private lateinit var searchLayout: TextInputLayout
     private lateinit var searchButton: ImageButton
     private lateinit var notificationsButton: ImageButton
+    private lateinit var menuButton: ImageButton
     private lateinit var toolbarTitle: TextView
     private lateinit var tabLayout: TabLayout
     private lateinit var prefs: SharedPreferences
     private var currentSearchListener: SearchListener? = null
     private var isSearchVisible = false
 
-    // Tab indices
+    // Tab indices - updated after removing Settings tab
     private val TAB_MY_PATIENTS = 0
     private val TAB_ALL_PATIENTS = 1
-    private val TAB_SCHEDULE = 2  // New Schedule tab
-    private val TAB_SETTINGS = 3  // Moved Settings to tab 4
+    private val TAB_SCHEDULE = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
@@ -115,6 +118,7 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         searchLayout = findViewById(R.id.searchLayout)
         searchInput = findViewById(R.id.searchInput)
         notificationsButton = findViewById(R.id.notificationsButton)
+        menuButton = findViewById(R.id.menuButton)
         toolbarTitle = findViewById(R.id.toolbarTitle)
         tabLayout = findViewById(R.id.tabLayout)
 
@@ -126,6 +130,62 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         notificationsButton.setOnClickListener {
             Toast.makeText(this, "Notifications feature coming soon", Toast.LENGTH_SHORT).show()
         }
+
+        // Set up 3-dot menu button
+        menuButton = findViewById(R.id.notificationsButton)
+        menuButton.setOnClickListener {
+            showOptionsMenu()
+        }
+    }
+
+    private fun showOptionsMenu() {
+        val options = arrayOf("Settings", "About", "Help", "Logout")
+
+        AlertDialog.Builder(this)
+            .setTitle("Options")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> navigateToSettings()
+                    1 -> showAboutDialog()
+                    2 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
+                    3 -> confirmLogout()
+                }
+            }
+            .show()
+    }
+
+    private fun navigateToSettings() {
+        // Load the settings fragment
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.contentFrame, SettingsFragment())
+            .addToBackStack("settings")
+            .commit()
+
+        // Update the toolbar title
+        toolbarTitle.text = "Settings"
+    }
+
+    private fun showAboutDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("About Medical Assistant")
+            .setMessage("Version 1.0\n\nMedical Assistant helps healthcare providers manage patients, appointments, and clinical notes efficiently.")
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun confirmLogout() {
+        AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Yes") { _, _ ->
+                // Navigate to LoginActivity
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 
     private fun toggleSearchVisibility(show: Boolean) {
@@ -203,14 +263,6 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
                         currentSearchListener = null
                         toolbarTitle.text = "Schedule"
                     }
-                    TAB_SETTINGS -> {
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.contentFrame, SettingsFragment())
-                            .addToBackStack("settings")
-                            .commit()
-                        currentSearchListener = null
-                        toolbarTitle.text = "Settings"
-                    }
                 }
             }
 
@@ -227,7 +279,14 @@ class DashboardActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
 
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
-            tabLayout.getTabAt(TAB_MY_PATIENTS)?.select()
+            // Update title when returning from settings
+            if (toolbarTitle.text == "Settings") {
+                when (tabLayout.selectedTabPosition) {
+                    TAB_MY_PATIENTS -> toolbarTitle.text = "My Patients"
+                    TAB_ALL_PATIENTS -> toolbarTitle.text = "All Patients"
+                    TAB_SCHEDULE -> toolbarTitle.text = "Schedule"
+                }
+            }
         } else {
             super.onBackPressed()
         }
