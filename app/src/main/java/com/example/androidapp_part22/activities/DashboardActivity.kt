@@ -139,17 +139,20 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
     }
 
     private fun showOptionsMenu() {
-        val options = arrayOf("Billing", "Settings", "About", "Help", "Logout")
+        val options = arrayOf("My Patients", "All Patients", "Schedule", "Billing", "Settings", "About", "Help", "Logout")
 
         AlertDialog.Builder(this)
             .setTitle("Options")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> navigateToBilling()
-                    1 -> navigateToSettings()
-                    2 -> showAboutDialog()
-                    3 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
-                    4 -> confirmLogout()
+                    0 -> switchToTab(TAB_MY_PATIENTS)
+                    1 -> switchToTab(TAB_ALL_PATIENTS)
+                    2 -> switchToTab(TAB_SCHEDULE)
+                    3 -> navigateToBilling()
+                    4 -> navigateToSettings()
+                    5 -> showAboutDialog()
+                    6 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
+                    7 -> confirmLogout()
                 }
             }
             .show()
@@ -242,8 +245,61 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
             true
         }
     }
+    private fun switchToTab(tabIndex: Int) {
+        // Select the tab in the UI
+        tabLayout.getTabAt(tabIndex)?.select()
 
-    // Ensure your setupTabLayout method in DashboardActivity.kt properly refreshes fragments
+        // Clear any existing fragments in the dashboard widgets container
+        supportFragmentManager.findFragmentById(R.id.dashboardWidgetsContainer)?.let {
+            supportFragmentManager.beginTransaction().remove(it).commit()
+        }
+
+        // Make sure dashboard widgets container is visible before adding to it
+        findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.VISIBLE
+
+        when (tabIndex) {
+            TAB_MY_PATIENTS -> {
+                val fragment = MyPatientsFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.contentFrame, fragment)
+                    .commitNow()
+
+                // Add upcoming appointments widget for My Patients tab
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.dashboardWidgetsContainer, UpcomingAppointmentsFragment.newInstance())
+                    .commit()
+
+                currentSearchListener = fragment
+                toolbarTitle.text = "My Patients"
+            }
+            TAB_ALL_PATIENTS -> {
+                val fragment = AllPatientsFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.contentFrame, fragment)
+                    .commitNow()
+
+                // If you want to show widgets for All Patients too
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.dashboardWidgetsContainer, UpcomingAppointmentsFragment.newInstance())
+                    .commit()
+
+                currentSearchListener = fragment
+                toolbarTitle.text = "All Patients"
+            }
+            TAB_SCHEDULE -> {
+                val fragment = ScheduleFragment.newInstance()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.contentFrame, fragment)
+                    .commitNow()
+
+                // Hide widgets for schedule view
+                findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.GONE
+
+                currentSearchListener = null
+                toolbarTitle.text = "Schedule"
+            }
+        }
+    }
     private fun setupTabLayout() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
@@ -252,35 +308,14 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
                     toggleSearchVisibility(false)
                 }
 
-                // Clear the dashboard widgets container when switching tabs
-                supportFragmentManager.findFragmentById(R.id.dashboardWidgetsContainer)?.let {
-                    supportFragmentManager.beginTransaction().remove(it).commit()
-                }
-
-                when (tab.position) {
-                    TAB_MY_PATIENTS -> {
-                        val fragment = MyPatientsFragment()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.contentFrame, fragment)
-                            .commitNow()
-
-                        // Add upcoming appointments widget for My Patients tab
-                        supportFragmentManager.beginTransaction()
-                            .add(R.id.dashboardWidgetsContainer, UpcomingAppointmentsFragment.newInstance())
-                            .commit()
-
-                        currentSearchListener = fragment
-                        toolbarTitle.text = "My Patients"
-                    }
-                    // Other tab selections...
-                }
+                // Use the helper method to handle tab switching
+                switchToTab(tab.position)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
     }
-
 
     override fun onBackPressed() {
         if (isSearchVisible) {
