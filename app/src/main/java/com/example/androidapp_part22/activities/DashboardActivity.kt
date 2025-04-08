@@ -162,10 +162,10 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
         // Hide tab layout when showing billing
         tabLayout.visibility = View.GONE
 
-        // Load the billing fragment
+        // Load the billing fragment with a meaningful back stack entry name
         supportFragmentManager.beginTransaction()
             .replace(R.id.contentFrame, BillingFragment.newInstance())
-            .addToBackStack("billing")
+            .addToBackStack("dashboard_to_billing")  // Use a more specific name
             .commit()
 
         // Update the toolbar title
@@ -292,21 +292,20 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
             // Pop the back stack
             supportFragmentManager.popBackStack()
 
-            // If we were in settings (checking by title)
-            if (toolbarTitle.text == "Settings") {
-                // Restore UI elements
-                findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.VISIBLE
-                tabLayout.visibility = View.VISIBLE
+            // Restore UI elements when returning from any fragment in back stack
+            findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.VISIBLE
+            tabLayout.visibility = View.VISIBLE
 
-                // Force a fresh tab selection to reload everything
-                val currentTab = tabLayout.selectedTabPosition
-                tabLayout.getTabAt(currentTab)?.select()
+            // Restore the appropriate title based on the current tab
+            when (tabLayout.selectedTabPosition) {
+                TAB_MY_PATIENTS -> toolbarTitle.text = "My Patients"
+                TAB_ALL_PATIENTS -> toolbarTitle.text = "All Patients"
+                TAB_SCHEDULE -> toolbarTitle.text = "Schedule"
             }
         } else {
             super.onBackPressed()
         }
     }
-
 
     // Add this to DashboardActivity.kt after onCreate method
     override fun onResume() {

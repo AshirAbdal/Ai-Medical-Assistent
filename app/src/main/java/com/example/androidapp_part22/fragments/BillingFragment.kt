@@ -316,6 +316,12 @@ class BillingFragment : Fragment() {
         return true
     }
 
+
+    override fun onDetach() {
+        super.onDetach()
+        // Clean up any resources if needed when fragment is detached
+    }
+
     private fun saveNewBillingItem(dialogView: View) {
         val patientName = dialogView.findViewById<AutoCompleteTextView>(R.id.patientAutoComplete).text.toString()
         val description = dialogView.findViewById<TextInputEditText>(R.id.descriptionEditText).text.toString()

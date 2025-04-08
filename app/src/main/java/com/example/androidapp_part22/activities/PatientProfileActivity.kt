@@ -154,7 +154,7 @@ class PatientProfileActivity : AppCompatActivity() {
         val billingFragment = BillingFragment.newInstance(patient)
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, billingFragment)
-            .addToBackStack("billing")
+            .addToBackStack("patient_to_billing")  // Use a more specific name
             .commit()
 
         // Hide the tab layout when showing billing
@@ -424,9 +424,10 @@ class PatientProfileActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
+            // Pop the back stack
             supportFragmentManager.popBackStack()
 
-            // Show tabs again if returning from settings or billing
+            // Show tabs again if returning from any fragment in back stack
             if (tabLayout.visibility == View.GONE) {
                 tabLayout.visibility = View.VISIBLE
                 toolbarTitle.text = "Patient Profile"
