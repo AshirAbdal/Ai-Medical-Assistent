@@ -119,7 +119,7 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
         searchLayout = findViewById(R.id.searchLayout)
         searchInput = findViewById(R.id.searchInput)
         notificationsButton = findViewById(R.id.notificationsButton)
-        menuButton = findViewById(R.id.menuButton) // Fixed: Using the correct ID for the menu button
+        menuButton = findViewById(R.id.menuButton)
         toolbarTitle = findViewById(R.id.toolbarTitle)
         tabLayout = findViewById(R.id.tabLayout)
 
@@ -139,20 +139,17 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
     }
 
     private fun showOptionsMenu() {
-        val options = arrayOf("My Patients", "All Patients", "Schedule", "Billing", "Settings", "About", "Help", "Logout")
+        val options = arrayOf("Billing", "Settings", "About", "Help", "Logout")
 
         AlertDialog.Builder(this)
             .setTitle("Options")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> switchToTab(TAB_MY_PATIENTS)
-                    1 -> switchToTab(TAB_ALL_PATIENTS)
-                    2 -> switchToTab(TAB_SCHEDULE)
-                    3 -> navigateToBilling()
-                    4 -> navigateToSettings()
-                    5 -> showAboutDialog()
-                    6 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
-                    7 -> confirmLogout()
+                    0 -> navigateToBilling()
+                    1 -> navigateToSettings()
+                    2 -> showAboutDialog()
+                    3 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
+                    4 -> confirmLogout()
                 }
             }
             .show()
@@ -168,7 +165,7 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
         // Load the billing fragment with a meaningful back stack entry name
         supportFragmentManager.beginTransaction()
             .replace(R.id.contentFrame, BillingFragment.newInstance())
-            .addToBackStack("dashboard_to_billing")  // Use a more specific name
+            .addToBackStack("dashboard_to_billing")
             .commit()
 
         // Update the toolbar title
@@ -245,6 +242,7 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
             true
         }
     }
+
     private fun switchToTab(tabIndex: Int) {
         // Select the tab in the UI
         tabLayout.getTabAt(tabIndex)?.select()
@@ -300,6 +298,7 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
             }
         }
     }
+
     private fun setupTabLayout() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
@@ -342,7 +341,6 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
         }
     }
 
-    // Add this to DashboardActivity.kt after onCreate method
     override fun onResume() {
         super.onResume()
 
@@ -371,6 +369,7 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
             }
         }
     }
+
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             "theme" -> applySavedTheme()
