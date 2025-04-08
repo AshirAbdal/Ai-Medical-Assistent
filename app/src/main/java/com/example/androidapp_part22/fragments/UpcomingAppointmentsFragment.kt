@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,12 +14,9 @@ import com.example.androidapp_part22.R
 import com.example.androidapp_part22.adapters.AppointmentAdapter
 import com.example.androidapp_part22.logic.ScheduleManager
 import com.example.androidapp_part22.models.Appointment
+import com.example.androidapp_part22.models.AppointmentStatus
 import com.google.android.material.card.MaterialCardView
 
-/**
- * A fragment that displays upcoming appointments.
- * This can be embedded in the dashboard or other screens.
- */
 class UpcomingAppointmentsFragment : Fragment() {
 
     private lateinit var upcomingAppointmentsCard: MaterialCardView
@@ -91,7 +90,7 @@ class UpcomingAppointmentsFragment : Fragment() {
     }
 
     private fun showAppointmentDetails(appointment: Appointment) {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        AlertDialog.Builder(requireContext())
             .setTitle("Appointment Details")
             .setMessage(
                 "Patient: ${appointment.patientName}\n" +
@@ -114,7 +113,7 @@ class UpcomingAppointmentsFragment : Fragment() {
             "View Patient Profile"
         )
 
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        AlertDialog.Builder(requireContext())
             .setTitle("Appointment Options")
             .setItems(options) { _, which ->
                 when (which) {
@@ -128,18 +127,18 @@ class UpcomingAppointmentsFragment : Fragment() {
     }
 
     private fun markAsCompleted(appointment: Appointment) {
-        val updatedAppointment = appointment.copy(status = com.example.androidapp_part22.models.AppointmentStatus.COMPLETED)
+        val updatedAppointment = appointment.copy(status = AppointmentStatus.COMPLETED)
         scheduleManager.updateAppointment(updatedAppointment)
         loadUpcomingAppointments(2)
         showToast("Appointment marked as completed")
     }
 
     private fun cancelAppointment(appointment: Appointment) {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        AlertDialog.Builder(requireContext())
             .setTitle("Cancel Appointment")
             .setMessage("Are you sure you want to cancel this appointment with ${appointment.patientName}?")
             .setPositiveButton("Yes") { _, _ ->
-                val updatedAppointment = appointment.copy(status = com.example.androidapp_part22.models.AppointmentStatus.CANCELLED)
+                val updatedAppointment = appointment.copy(status = AppointmentStatus.CANCELLED)
                 scheduleManager.updateAppointment(updatedAppointment)
                 loadUpcomingAppointments(2)
                 showToast("Appointment cancelled")

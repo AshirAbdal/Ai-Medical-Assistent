@@ -18,10 +18,8 @@ class AppointmentAdapter(
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val timeText: TextView = itemView.findViewById(R.id.appointmentTimeText)
-        val durationText: TextView = itemView.findViewById(R.id.appointmentDurationText)
         val patientNameText: TextView = itemView.findViewById(R.id.appointmentPatientNameText)
         val typeText: TextView = itemView.findViewById(R.id.appointmentTypeText)
-        val notesText: TextView = itemView.findViewById(R.id.appointmentNotesText)
         val statusIndicator: View = itemView.findViewById(R.id.statusIndicator)
         val moreOptionsButton: ImageButton = itemView.findViewById(R.id.moreOptionsButton)
     }
@@ -36,17 +34,8 @@ class AppointmentAdapter(
         val appointment = appointments[position]
 
         holder.timeText.text = appointment.time
-        holder.durationText.text = "${appointment.duration} min"
         holder.patientNameText.text = appointment.patientName
         holder.typeText.text = appointment.type.displayName
-
-        // Set notes or hide if empty
-        if (appointment.notes.isNotEmpty()) {
-            holder.notesText.text = appointment.notes
-            holder.notesText.visibility = View.VISIBLE
-        } else {
-            holder.notesText.visibility = View.GONE
-        }
 
         // Set status indicator color based on appointment status
         val statusColorResId = when (appointment.status) {
