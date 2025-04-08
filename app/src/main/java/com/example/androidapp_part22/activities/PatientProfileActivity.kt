@@ -15,6 +15,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.androidapp_part22.R
+import com.example.androidapp_part22.fragments.BillingFragment
 import com.example.androidapp_part22.fragments.JournalFragment
 import com.example.androidapp_part22.fragments.MedicationsFragment
 import com.example.androidapp_part22.fragments.ReportsFragment
@@ -25,7 +27,6 @@ import com.example.androidapp_part22.models.Appointment
 import com.example.androidapp_part22.models.AppointmentStatus
 import com.example.androidapp_part22.models.AppointmentType
 import com.example.androidapp_part22.models.Patient
-import com.example.androidapp_part22.R
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
@@ -107,9 +108,6 @@ class PatientProfileActivity : AppCompatActivity() {
     }
 
     private fun setupToolbarActions() {
-        // Find the TextView in the toolbar
-        toolbarTitle = findViewById(R.id.toolbarTitle)
-
         // Set the patient name in the toolbar title
         toolbarTitle.text = "Patient Profile"
 
@@ -130,24 +128,40 @@ class PatientProfileActivity : AppCompatActivity() {
     }
 
     private fun showOptionsMenu() {
-        val options = arrayOf("Settings", "Add Note", "Schedule Appointment", "Print Patient Summary", "Export Data")
+        val options = arrayOf("Billing", "Settings", "Add Note", "Schedule Appointment", "Print Patient Summary", "Export Data")
 
         AlertDialog.Builder(this)
             .setTitle("Options")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> showSettingsFragment()
-                    1 -> {
+                    0 -> showPatientBilling()
+                    1 -> showSettingsFragment()
+                    2 -> {
                         // Switch to Journal tab and focus on new entry
                         tabLayout.getTabAt(TAB_JOURNAL)?.select()
                         // Would need a method in JournalFragment to focus on new entry input
                     }
-                    2 -> showScheduleAppointmentDialog()
-                    3 -> Toast.makeText(this, "Print feature coming soon", Toast.LENGTH_SHORT).show()
-                    4 -> Toast.makeText(this, "Export feature coming soon", Toast.LENGTH_SHORT).show()
+                    3 -> showScheduleAppointmentDialog()
+                    4 -> Toast.makeText(this, "Print feature coming soon", Toast.LENGTH_SHORT).show()
+                    5 -> Toast.makeText(this, "Export feature coming soon", Toast.LENGTH_SHORT).show()
                 }
             }
             .show()
+    }
+
+    private fun showPatientBilling() {
+        // Load the billing fragment for this specific patient
+        val billingFragment = BillingFragment.newInstance(patient)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, billingFragment)
+            .addToBackStack("billing")
+            .commit()
+
+        // Hide the tab layout when showing billing
+        tabLayout.visibility = View.GONE
+
+        // Update the toolbar title
+        toolbarTitle.text = "Patient Billing"
     }
 
     private fun showSettingsFragment() {
@@ -412,7 +426,7 @@ class PatientProfileActivity : AppCompatActivity() {
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
 
-            // Show tabs again if returning from settings
+            // Show tabs again if returning from settings or billing
             if (tabLayout.visibility == View.GONE) {
                 tabLayout.visibility = View.VISIBLE
                 toolbarTitle.text = "Patient Profile"

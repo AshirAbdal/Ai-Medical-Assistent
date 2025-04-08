@@ -18,6 +18,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import com.example.androidapp_part22.R
 import com.example.androidapp_part22.fragments.AllPatientsFragment
+import com.example.androidapp_part22.fragments.BillingFragment
 import com.example.androidapp_part22.fragments.MyPatientsFragment
 import com.example.androidapp_part22.fragments.PatientListFragment
 import com.example.androidapp_part22.fragments.ScheduleFragment
@@ -138,19 +139,37 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
     }
 
     private fun showOptionsMenu() {
-        val options = arrayOf("Settings", "About", "Help", "Logout")
+        val options = arrayOf("Billing", "Settings", "About", "Help", "Logout")
 
         AlertDialog.Builder(this)
             .setTitle("Options")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> navigateToSettings()
-                    1 -> showAboutDialog()
-                    2 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
-                    3 -> confirmLogout()
+                    0 -> navigateToBilling()
+                    1 -> navigateToSettings()
+                    2 -> showAboutDialog()
+                    3 -> Toast.makeText(this, "Help feature coming soon", Toast.LENGTH_SHORT).show()
+                    4 -> confirmLogout()
                 }
             }
             .show()
+    }
+
+    private fun navigateToBilling() {
+        // Hide widgets container when showing billing
+        findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.GONE
+
+        // Hide tab layout when showing billing
+        tabLayout.visibility = View.GONE
+
+        // Load the billing fragment
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.contentFrame, BillingFragment.newInstance())
+            .addToBackStack("billing")
+            .commit()
+
+        // Update the toolbar title
+        toolbarTitle.text = "Billing"
     }
 
     private fun navigateToSettings() {
