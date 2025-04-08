@@ -84,12 +84,12 @@ class PatientProfileActivity : AppCompatActivity() {
         // Load the default fragment (Journal)
         loadFragment(JournalFragment.newInstance(patient))
     }
-
+    // In initViews() method in PatientProfileActivity.kt
     private fun initViews() {
         // Toolbar views
         backButton = findViewById(R.id.backButton)
         searchPatientButton = findViewById(R.id.searchPatientButton)
-        menuButton = findViewById(R.id.menuButton)
+        menuButton = findViewById(R.id.menuButton)  // Make sure this ID is correct
         toolbarTitle = findViewById(R.id.toolbarTitle)
 
         // Patient info views
@@ -111,9 +111,16 @@ class PatientProfileActivity : AppCompatActivity() {
         // Set the patient name in the toolbar title
         toolbarTitle.text = "Patient Profile"
 
-        // Back button setup
+        // Back button setup with improved navigation handling
         backButton.setOnClickListener {
-            finishWithAnimation()
+            // Check if we have fragments in backstack first
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                // Pop the backstack using onBackPressed() which has our logic
+                onBackPressed()
+            } else {
+                // Only finish with animation if there's nothing in the back stack
+                finishWithAnimation()
+            }
         }
 
         // Search button setup
@@ -121,13 +128,16 @@ class PatientProfileActivity : AppCompatActivity() {
             Toast.makeText(this, "Search feature coming soon", Toast.LENGTH_SHORT).show()
         }
 
-        // Menu button setup (3-dot menu)
+        // Menu button setup
         menuButton.setOnClickListener {
             showOptionsMenu()
         }
     }
 
     private fun showOptionsMenu() {
+        // Add debug log or toast
+        Toast.makeText(this, "Opening menu", Toast.LENGTH_SHORT).show()
+
         val options = arrayOf("Billing", "Settings", "Add Note", "Schedule Appointment", "Print Patient Summary", "Export Data")
 
         AlertDialog.Builder(this)
@@ -139,7 +149,6 @@ class PatientProfileActivity : AppCompatActivity() {
                     2 -> {
                         // Switch to Journal tab and focus on new entry
                         tabLayout.getTabAt(TAB_JOURNAL)?.select()
-                        // Would need a method in JournalFragment to focus on new entry input
                     }
                     3 -> showScheduleAppointmentDialog()
                     4 -> Toast.makeText(this, "Print feature coming soon", Toast.LENGTH_SHORT).show()
@@ -149,12 +158,13 @@ class PatientProfileActivity : AppCompatActivity() {
             .show()
     }
 
+    // In showPatientBilling() in PatientProfileActivity.kt
     private fun showPatientBilling() {
         // Load the billing fragment for this specific patient
         val billingFragment = BillingFragment.newInstance(patient)
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, billingFragment)
-            .addToBackStack("patient_to_billing")  // Use a more specific name
+            .addToBackStack("patient_to_billing")  // Consistent name
             .commit()
 
         // Hide the tab layout when showing billing
@@ -424,13 +434,27 @@ class PatientProfileActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
+            // Get the name of the current backstack entry before popping
+            val currentEntry = supportFragmentManager.getBackStackEntryAt(
+                supportFragmentManager.backStackEntryCount - 1
+            ).name
+
             // Pop the back stack
             supportFragmentManager.popBackStack()
 
-            // Show tabs again if returning from any fragment in back stack
+            // Show tabs again if returning from billing or settings
             if (tabLayout.visibility == View.GONE) {
                 tabLayout.visibility = View.VISIBLE
+
+                // Set appropriate title based on what we're returning from
                 toolbarTitle.text = "Patient Profile"
+
+                // If we're returning to the main view, make sure the correct tab is selected
+                if (currentEntry == "patient_to_billing" || currentEntry == "settings") {
+                    // This ensures the UI is in the expected state
+                    val currentTab = tabLayout.selectedTabPosition
+                    tabLayout.getTabAt(currentTab)?.select()
+                }
             }
         } else {
             super.onBackPressed()
