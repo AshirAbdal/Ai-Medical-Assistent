@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.example.androidapp_part22.R
+import com.example.androidapp_part22.activities.DashboardActivity
 import java.util.Locale
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
@@ -113,8 +114,16 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 // Notify about changes
                 Toast.makeText(requireContext(), "Settings saved", Toast.LENGTH_SHORT).show()
 
-                // Just pop the back stack
+                // Get reference to DashboardActivity
+                val dashboardActivity = activity as? DashboardActivity
+
+                // Store the current tab index for restoration
+                val currentTabPosition = dashboardActivity?.getCurrentTabPosition() ?: 0
+
+                // Return to the previous screen
                 activity?.onBackPressed()
+
+                // Refresh the tab if needed (handled in onBackPressed)
             } else {
                 Toast.makeText(requireContext(), "Invalid input", Toast.LENGTH_SHORT).show()
             }

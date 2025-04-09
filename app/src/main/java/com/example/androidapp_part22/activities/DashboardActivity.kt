@@ -41,9 +41,9 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
     private var isSearchVisible = false
 
     // Tab indices - updated after removing Settings tab
-    private val TAB_MY_PATIENTS = 0
-    private val TAB_ALL_PATIENTS = 1
-    private val TAB_SCHEDULE = 2
+    val TAB_MY_PATIENTS = 0
+    val TAB_ALL_PATIENTS = 1
+    val TAB_SCHEDULE = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
@@ -243,7 +243,19 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
         }
     }
 
-    private fun switchToTab(tabIndex: Int) {
+    // Public method to get the current tab position
+    fun getCurrentTabPosition(): Int {
+        return tabLayout.selectedTabPosition
+    }
+
+    // Public method to switch to a specific tab
+    fun selectTab(tabIndex: Int) {
+        if (tabIndex >= 0 && tabIndex < tabLayout.tabCount) {
+            switchToTab(tabIndex)
+        }
+    }
+
+    fun switchToTab(tabIndex: Int) {
         // Select the tab in the UI
         tabLayout.getTabAt(tabIndex)?.select()
 
@@ -323,6 +335,11 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
         }
 
         if (supportFragmentManager.backStackEntryCount > 0) {
+            // Get the current backstack entry name before popping
+            val currentEntry = supportFragmentManager.getBackStackEntryAt(
+                supportFragmentManager.backStackEntryCount - 1
+            ).name
+
             // Pop the back stack
             supportFragmentManager.popBackStack()
 
@@ -330,11 +347,10 @@ public final class DashboardActivity : AppCompatActivity(), SharedPreferences.On
             findViewById<View>(R.id.dashboardWidgetsContainer).visibility = View.VISIBLE
             tabLayout.visibility = View.VISIBLE
 
-            // Restore the appropriate title based on the current tab
-            when (tabLayout.selectedTabPosition) {
-                TAB_MY_PATIENTS -> toolbarTitle.text = "My Patients"
-                TAB_ALL_PATIENTS -> toolbarTitle.text = "All Patients"
-                TAB_SCHEDULE -> toolbarTitle.text = "Schedule"
+            // If returning from settings, explicitly refresh the current tab
+            if (currentEntry == "settings") {
+                val currentTab = tabLayout.selectedTabPosition
+                switchToTab(currentTab)
             }
         } else {
             super.onBackPressed()
